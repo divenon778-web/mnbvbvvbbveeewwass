@@ -13,7 +13,16 @@ export default function Profile() {
   const [error, setError] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasEntered, setHasEntered] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -86,9 +95,25 @@ export default function Profile() {
 
   return (
     <div 
-      className="min-h-screen relative flex items-center justify-center overflow-hidden bg-black"
-      style={{ cursor: profile.cursorUrl ? `url(${profile.cursorUrl}), auto` : 'auto' }}
+      className={`min-h-screen relative flex items-center justify-center overflow-hidden bg-black ${profile.cursorUrl ? 'cursor-none' : ''}`}
     >
+      {/* Custom Cursor Follower */}
+      {profile.cursorUrl && (
+        <motion.div
+          className="fixed top-0 left-0 z-[9999] pointer-events-none flex items-center justify-center"
+          animate={{ x: mousePos.x, y: mousePos.y }}
+          transition={{ type: 'tween', ease: 'linear', duration: 0 }}
+          style={{ translateX: '-50%', translateY: '-50%' }}
+        >
+          <img 
+            src={profile.cursorUrl} 
+            alt="" 
+            className="max-w-[48px] max-h-[48px] object-contain"
+            onError={(e) => (e.currentTarget.style.display = 'none')}
+          />
+        </motion.div>
+      )}
+
       <AnimatePresence>
         {!hasEntered && (
           <motion.div
