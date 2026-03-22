@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag, Plus, Tag, FileText, Layout, Download, Coins, Search, Filter, Trash2, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { handleFirestoreError, OperationType } from '../utils/firestoreErrorHandler';
 import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../AuthContext';
 import { db } from '../firebase';
@@ -238,34 +239,54 @@ export default function Store() {
 
     try {
       // 1. Deduct coins from buyer
-      await updateDoc(doc(db, 'users', user.uid), {
-        coins: increment(-item.price)
-      });
+      try {
+        await updateDoc(doc(db, 'users', user.uid), {
+          coins: increment(-item.price)
+        });
+      } catch (e) {
+        handleFirestoreError(e, OperationType.WRITE, `users/${user.uid}`);
+      }
 
       // 2. Add coins to seller
-      await updateDoc(doc(db, 'users', item.sellerId), {
-        coins: increment(item.price)
-      });
+      try {
+        await updateDoc(doc(db, 'users', item.sellerId), {
+          coins: increment(item.price)
+        });
+      } catch (e) {
+        handleFirestoreError(e, OperationType.WRITE, `users/${item.sellerId}`);
+      }
 
       // 3. Record transaction
-      await addDoc(collection(db, 'transactions'), {
-        buyerId: user.uid,
-        sellerId: item.sellerId,
-        itemId: item.id,
-        amount: item.price,
-        timestamp: serverTimestamp()
-      });
+      try {
+        await addDoc(collection(db, 'transactions'), {
+          buyerId: user.uid,
+          sellerId: item.sellerId,
+          itemId: item.id,
+          amount: item.price,
+          timestamp: serverTimestamp()
+        });
+      } catch (e) {
+        handleFirestoreError(e, OperationType.CREATE, 'transactions');
+      }
 
       // 4. Add to purchased items
-      await setDoc(doc(db, `purchased_items/${user.uid}/items`, item.id), {
-        itemId: item.id,
-        purchasedAt: serverTimestamp()
-      });
+      try {
+        await setDoc(doc(db, `purchased_items/${user.uid}/items`, item.id), {
+          itemId: item.id,
+          purchasedAt: serverTimestamp()
+        });
+      } catch (e) {
+        handleFirestoreError(e, OperationType.WRITE, `purchased_items/${user.uid}/items/${item.id}`);
+      }
 
       // 5. Increment sales count
-      await updateDoc(doc(db, 'store_items', item.id), {
-        sales: increment(1)
-      });
+      try {
+        await updateDoc(doc(db, 'store_items', item.id), {
+          sales: increment(1)
+        });
+      } catch (e) {
+        handleFirestoreError(e, OperationType.WRITE, `store_items/${item.id}`);
+      }
 
       toast.success(`Purchased ${item.name}!`);
       refreshUserData();
