@@ -85,6 +85,16 @@
         "timestamp": { "type": "string", "format": "date-time" }
       },
       "required": ["id", "buyerId", "sellerId", "itemId", "amount", "timestamp"]
+    },
+    "ProfileView": {
+      "title": "ProfileView",
+      "description": "A single profile view record",
+      "type": "object",
+      "properties": {
+        "profileId": { "type": "string", "description": "The UID of the profile viewed" },
+        "timestamp": { "type": "string", "format": "date-time" }
+      },
+      "required": ["profileId", "timestamp"]
     }
   },
   "firestore": {
@@ -103,6 +113,10 @@
     "/transactions/{transactionId}": {
       "schema": { "$ref": "#/entities/Transaction" },
       "description": "Purchase transactions"
+    },
+    "/profile_views/{viewId}": {
+      "schema": { "$ref": "#/entities/ProfileView" },
+      "description": "Historical profile views"
     },
     "/purchased_items/{userId}/items/{itemId}": {
       "schema": { "type": "object", "properties": { "itemId": { "type": "string" }, "purchasedAt": { "type": "string", "format": "date-time" } } },
