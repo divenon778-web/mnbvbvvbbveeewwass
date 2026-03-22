@@ -29,6 +29,15 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+.appearance-slider-vertical {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  appearance: slider-vertical;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}
+
 /* Custom utility for the star background */
 .bg-stars {
   background-image: 
