@@ -170,13 +170,13 @@ export default function Profile() {
         )}
 
         {/* Links */}
-        <div className="w-full flex flex-col gap-3">
+        <div className="w-full flex flex-wrap justify-center gap-4 mb-8">
           {profile.links && profile.links.length > 0 ? (
             profile.links.map((link: any, i: number) => {
               // Ensure URL has a protocol
               const url = link.url.startsWith('http') ? link.url : `https://${link.url}`;
               const domain = url.replace(/^https?:\/\//, '').split('/')[0];
-              const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+              const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
               
               return (
                 <motion.a
@@ -184,12 +184,12 @@ export default function Profile() {
                   href={url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.6 + i * 0.1 }}
                   className="p-2 hover:scale-110 transition-transform"
                 >
-                  <img src={faviconUrl} alt="" className="w-5 h-5 rounded-sm" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                  <img src={faviconUrl} alt="" className="w-8 h-8 rounded-sm" onError={(e) => (e.currentTarget.style.display = 'none')} />
                 </motion.a>
               );
             })
