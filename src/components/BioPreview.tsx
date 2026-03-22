@@ -193,23 +193,25 @@ export default function BioPreview({ profile, username }: BioPreviewProps) {
             if (profile.socialStyle === 'custom') {
               const customColor = profile.socialColor || '#ffffff';
               iconContent = (
-                <div 
-                  className="w-6 h-6"
-                  style={{
-                    backgroundColor: customColor,
-                    WebkitMaskImage: `url('${faviconUrl}')`,
-                    WebkitMaskSize: 'contain',
-                    WebkitMaskRepeat: 'no-repeat',
-                    WebkitMaskPosition: 'center',
-                    maskImage: `url('${faviconUrl}')`,
-                    maskSize: 'contain',
-                    maskRepeat: 'no-repeat',
-                    maskPosition: 'center',
-                  }}
-                />
+                <div className="w-6 h-6 overflow-hidden rounded-sm inline-block shrink-0">
+                  <img 
+                    src={faviconUrl} 
+                    alt="" 
+                    className="w-full h-full block max-w-none" 
+                    style={{ 
+                      transform: 'translateX(-24px)',
+                      filter: `drop-shadow(24px 0 0 ${customColor})` 
+                    }} 
+                    onError={(e) => {
+                      if (e.currentTarget.parentElement) {
+                        e.currentTarget.parentElement.style.display = 'none';
+                      }
+                    }} 
+                  />
+                </div>
               );
             } else {
-              let iconStyle = "w-6 h-6 rounded-sm opacity-80 hover:opacity-100 transition-opacity drop-shadow-md ";
+              let iconStyle = "w-6 h-6 rounded-sm opacity-80 hover:opacity-100 transition-opacity drop-shadow-md shrink-0 ";
               if (profile.socialStyle === 'monochrome') iconStyle += "grayscale contrast-125";
               else if (profile.socialStyle === 'minimal') iconStyle += "grayscale opacity-50 hover:grayscale-0 hover:opacity-100";
               iconContent = <img src={faviconUrl} alt="" className={iconStyle} onError={(e) => (e.currentTarget.style.display = 'none')} />;
