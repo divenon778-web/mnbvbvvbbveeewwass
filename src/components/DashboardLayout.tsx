@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { User, ChevronDown, Palette, LogOut } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { auth } from '../firebase';
@@ -8,9 +8,11 @@ import { signOut } from 'firebase/auth';
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const { userData } = useAuth();
   const location = useLocation();
+  const navigate = useNavigate();
   
-  const handleLogout = () => {
-    signOut(auth);
+  const handleLogout = async () => {
+    await signOut(auth);
+    navigate('/');
   };
 
   return (
