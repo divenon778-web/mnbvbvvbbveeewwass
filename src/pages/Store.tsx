@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ShoppingBag, Plus, Tag, FileText, Layout, Download, Coins, Search, Filter, Trash2, CheckCircle2 } from 'lucide-react';
+import { ShoppingBag, Plus, Tag, FileText, Layout, Download, Coins, Search, Filter, Trash2, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../AuthContext';
 import { db } from '../firebase';
@@ -30,6 +30,8 @@ export default function Store() {
   const [loading, setLoading] = useState(true);
   const [isSellModalOpen, setIsSellModalOpen] = useState(false);
   const [cooldownTime, setCooldownTime] = useState<string | null>(null);
+  const [showStoreOnBio, setShowStoreOnBio] = useState(false);
+  const [isUpdatingStoreStatus, setIsUpdatingStoreStatus] = useState(false);
   
   // Sell Form State
   const [newItem, setNewItem] = useState({
@@ -45,7 +47,68 @@ export default function Store() {
     fetchMarketplace();
     fetchMyItems();
     fetchPurchases();
+    fetchStoreStatus();
   }, [user]);
+
+  const fetchStoreStatus = async () => {
+    if (!user) return;
+    try {
+      const docRef = doc(db, 'profiles', user.uid);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setShowStoreOnBio(docSnap.data().showStoreOnBio || false);
+      }
+    } catch (error) {
+      console.error("Error fetching store status:", error);
+    }
+  };
+
+  const toggleStoreOnBio = async () => {
+    if (!user) return;
+    setIsUpdatingStoreStatus(true);
+    try {
+      const newStatus = !showStoreOnBio;
+      await updateDoc(doc(db, 'profiles', user.uid), {
+        showStoreOnBio: newStatus
+      });
+      setShowStoreOnBio(newStatus);
+      toast.success(newStatus ? 'Store is now visible on your bio' : 'Store is now hidden from your bio');
+    } catch (error) {
+      console.error("Error updating store status:", error);
+      toast.error('Failed to update store status');
+    } finally {
+      setIsUpdatingStoreStatus(false);
+    }
+  };
+
+  const toggleItemVisibility = async (itemId: string, currentStatus: boolean) => {
+    try {
+      await updateDoc(doc(db, 'store_items', itemId), {
+        showOnBio: !currentStatus
+      });
+      toast.success(`Item ${!currentStatus ? 'visible' : 'hidden'} on bio`);
+      fetchMyItems();
+    } catch (error) {
+      console.error("Error toggling item visibility:", error);
+      toast.error('Failed to update visibility');
+    }
+  };
+
+  const handleDeleteItem = async (itemId: string) => {
+    if (!confirm('Are you sure you want to delete this item? This action cannot be undone.')) return;
+    
+    try {
+      await updateDoc(doc(db, 'store_items', itemId), {
+        active: false
+      });
+      toast.success('Item removed from store');
+      fetchMarketplace();
+      fetchMyItems();
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      toast.error('Failed to delete item');
+    }
+  };
 
   useEffect(() => {
     if (userData?.lastClaimedAt) {
@@ -84,7 +147,9 @@ export default function Store() {
     try {
       const q = query(collection(db, 'store_items'));
       const querySnapshot = await getDocs(q);
-      const itemsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as StoreItem));
+      const itemsData = querySnapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() } as StoreItem))
+        .filter(item => (item as any).active !== false);
       setItems(itemsData);
     } catch (error) {
       console.error("Error fetching marketplace:", error);
@@ -98,7 +163,9 @@ export default function Store() {
     try {
       const q = query(collection(db, 'store_items'), where('sellerId', '==', user.uid));
       const querySnapshot = await getDocs(q);
-      const itemsData = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as StoreItem));
+      const itemsData = querySnapshot.docs
+        .map(doc => ({ id: doc.id, ...doc.data() } as StoreItem))
+        .filter(item => (item as any).active !== false);
       setMyItems(itemsData);
     } catch (error) {
       console.error("Error fetching my items:", error);
@@ -137,7 +204,8 @@ export default function Store() {
         sellerId: user.uid,
         sellerUsername: userData.username,
         createdAt: serverTimestamp(),
-        sales: 0
+        sales: 0,
+        active: true
       };
 
       await addDoc(collection(db, 'store_items'), itemData);
@@ -264,28 +332,46 @@ export default function Store() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-6 border-b border-white/5 mb-8">
-          <button 
-            onClick={() => setActiveTab('marketplace')}
-            className={`pb-4 text-sm font-medium transition-colors relative ${activeTab === 'marketplace' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
-          >
-            Marketplace
-            {activeTab === 'marketplace' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
-          </button>
-          <button 
-            onClick={() => setActiveTab('my-items')}
-            className={`pb-4 text-sm font-medium transition-colors relative ${activeTab === 'my-items' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
-          >
-            My Items
-            {activeTab === 'my-items' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
-          </button>
-          <button 
-            onClick={() => setActiveTab('purchases')}
-            className={`pb-4 text-sm font-medium transition-colors relative ${activeTab === 'purchases' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
-          >
-            Purchases
-            {activeTab === 'purchases' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
-          </button>
+        <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 mb-8 gap-4">
+          <div className="flex gap-6">
+            <button 
+              onClick={() => setActiveTab('marketplace')}
+              className={`pb-4 text-sm font-medium transition-colors relative ${activeTab === 'marketplace' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
+            >
+              Marketplace
+              {activeTab === 'marketplace' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
+            </button>
+            <button 
+              onClick={() => setActiveTab('my-items')}
+              className={`pb-4 text-sm font-medium transition-colors relative ${activeTab === 'my-items' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
+            >
+              My Items
+              {activeTab === 'my-items' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
+            </button>
+            <button 
+              onClick={() => setActiveTab('purchases')}
+              className={`pb-4 text-sm font-medium transition-colors relative ${activeTab === 'purchases' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
+            >
+              Purchases
+              {activeTab === 'purchases' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
+            </button>
+          </div>
+
+          {activeTab === 'my-items' && (
+            <div className="pb-4 flex items-center gap-3">
+              <span className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Show Store on Bio</span>
+              <button 
+                onClick={toggleStoreOnBio}
+                disabled={isUpdatingStoreStatus}
+                className={`w-10 h-5 rounded-full relative transition-colors ${showStoreOnBio ? 'bg-white' : 'bg-zinc-800'}`}
+              >
+                <motion.div 
+                  animate={{ x: showStoreOnBio ? 22 : 2 }}
+                  className={`absolute top-1 w-3 h-3 rounded-full ${showStoreOnBio ? 'bg-black' : 'bg-zinc-500'}`}
+                />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Content */}
@@ -304,9 +390,31 @@ export default function Store() {
                   <div className={`p-2 rounded-lg ${item.type === 'template' ? 'bg-purple-500/10 text-purple-500' : 'bg-blue-500/10 text-blue-500'}`}>
                     {item.type === 'template' ? <Layout size={20} /> : <FileText size={20} />}
                   </div>
-                  <div className="flex items-center gap-1.5 bg-zinc-500/10 px-2.5 py-1 rounded-full border border-zinc-500/20">
-                    <Coins size={12} className="text-yellow-500" />
-                    <span className="text-xs font-bold text-white">{item.price}</span>
+                  <div className="flex items-center gap-2">
+                    {activeTab === 'my-items' && (
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => toggleItemVisibility(item.id, (item as any).showOnBio !== false)}
+                          className={`p-2 rounded-lg transition-colors ${
+                            (item as any).showOnBio !== false ? 'bg-zinc-800 text-white' : 'bg-zinc-900 text-zinc-500'
+                          }`}
+                          title={(item as any).showOnBio !== false ? "Visible on Bio" : "Hidden on Bio"}
+                        >
+                          {(item as any).showOnBio !== false ? <Eye size={16} /> : <EyeOff size={16} />}
+                        </button>
+                        <button 
+                          onClick={() => handleDeleteItem(item.id)}
+                          className="p-2 bg-red-500/10 text-red-500 rounded-lg hover:bg-red-500/20 transition-colors"
+                          title="Delete Item"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1.5 bg-zinc-500/10 px-2.5 py-1 rounded-full border border-zinc-500/20">
+                      <Coins size={12} className="text-yellow-500" />
+                      <span className="text-xs font-bold text-white">{item.price}</span>
+                    </div>
                   </div>
                 </div>
 
