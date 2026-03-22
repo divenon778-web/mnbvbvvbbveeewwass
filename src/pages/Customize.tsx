@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../AuthContext';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db, storage } from '../firebase';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db } from '../firebase';
 import toast from 'react-hot-toast';
-import { X, Upload, Music, Image as ImageIcon, MousePointer2, Cat, Type, Sparkles } from 'lucide-react';
+import { X, Upload, Music, Image as ImageIcon, MousePointer2, Cat, Type, Sparkles, Link } from 'lucide-react';
 
 export default function Customize() {
   const { user } = useAuth();
@@ -49,33 +48,14 @@ export default function Customize() {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: string, type: 'video' | 'image' | 'audio') => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Limit size to 5MB
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('File must be smaller than 5MB.');
-      return;
-    }
-
-    try {
-      const storageRef = ref(storage, `uploads/${user?.uid}/${field}_${Date.now()}`);
-      const snapshot = await uploadBytes(storageRef, file);
-      const downloadUrl = await getDownloadURL(snapshot.ref);
-
-      setProfile((prev: any) => {
-        const updated = { ...prev, [field]: downloadUrl };
-        if (field === 'backgroundUrl') {
-          updated.backgroundType = type;
-        }
-        return updated;
-      });
-      toast.success('File uploaded successfully');
-    } catch (error) {
-      console.error("Error uploading file:", error);
-      toast.error('Failed to upload file');
-    }
+  const handleUrlChange = (field: string, url: string, type?: 'video' | 'image' | 'audio') => {
+    setProfile((prev: any) => {
+      const updated = { ...prev, [field]: url };
+      if (type && field === 'backgroundUrl') {
+        updated.backgroundType = type;
+      }
+      return updated;
+    });
   };
 
   const handleRemove = (field: string) => {
@@ -116,16 +96,17 @@ export default function Customize() {
                     <button onClick={() => handleRemove('backgroundUrl')} className="absolute top-2 right-2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-red-500/50 transition-colors z-10">
                       <X size={12} />
                     </button>
-                    <div className="absolute top-2 right-10 px-2 py-0.5 bg-black/50 rounded text-[10px] text-white z-10">
-                      {profile.backgroundType === 'video' ? '.mp4' : '.img'}
-                    </div>
                   </>
                 ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-white/5 transition-colors">
-                    <Upload size={20} className="text-zinc-500 mb-2" />
-                    <span className="text-xs text-zinc-500">Upload MP4/Image (max 5MB)</span>
-                    <input type="file" accept="video/mp4,image/*" className="hidden" onChange={(e) => handleFileUpload(e, 'backgroundUrl', e.target.files?.[0]?.type.includes('video') ? 'video' : 'image')} />
-                  </label>
+                  <div className="flex flex-col items-center justify-center w-full h-full">
+                    <Link size={20} className="text-zinc-500 mb-2" />
+                    <input 
+                      type="text" 
+                      placeholder="Paste URL..." 
+                      className="w-[90%] bg-[#0A0A0A] border border-white/10 rounded px-2 py-1 text-[10px] text-white"
+                      onChange={(e) => handleUrlChange('backgroundUrl', e.target.value, e.target.value.includes('.mp4') ? 'video' : 'image')}
+                    />
+                  </div>
                 )}
               </div>
             </div>
@@ -138,19 +119,22 @@ export default function Customize() {
                   <>
                     <div className="flex flex-col items-center justify-center w-full h-full bg-white/5">
                       <Music size={24} className="text-emerald-400 mb-2" />
-                      <span className="text-xs text-emerald-400/70">Audio uploaded</span>
+                      <span className="text-xs text-emerald-400/70">Audio linked</span>
                     </div>
                     <button onClick={() => handleRemove('audioUrl')} className="absolute top-2 right-2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-red-500/50 transition-colors z-10">
                       <X size={12} />
                     </button>
-                    <div className="absolute top-2 right-10 px-2 py-0.5 bg-black/50 rounded text-[10px] text-white z-10">.mp3</div>
                   </>
                 ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-white/5 transition-colors">
-                    <Upload size={20} className="text-zinc-500 mb-2" />
-                    <span className="text-xs text-zinc-500">Upload MP3 (max 5MB)</span>
-                    <input type="file" accept="audio/mpeg,audio/mp3" className="hidden" onChange={(e) => handleFileUpload(e, 'audioUrl', 'audio')} />
-                  </label>
+                  <div className="flex flex-col items-center justify-center w-full h-full">
+                    <Link size={20} className="text-zinc-500 mb-2" />
+                    <input 
+                      type="text" 
+                      placeholder="Paste URL..." 
+                      className="w-[90%] bg-[#0A0A0A] border border-white/10 rounded px-2 py-1 text-[10px] text-white"
+                      onChange={(e) => handleUrlChange('audioUrl', e.target.value)}
+                    />
+                  </div>
                 )}
               </div>
             </div>
@@ -165,14 +149,17 @@ export default function Customize() {
                     <button onClick={() => handleRemove('avatarUrl')} className="absolute top-2 right-2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-red-500/50 transition-colors z-10">
                       <X size={12} />
                     </button>
-                    <div className="absolute top-2 right-10 px-2 py-0.5 bg-black/50 rounded text-[10px] text-white z-10">.gif/.png</div>
                   </>
                 ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-white/5 transition-colors">
-                    <ImageIcon size={20} className="text-zinc-500 mb-2" />
-                    <span className="text-xs text-zinc-500">Upload Avatar (max 5MB)</span>
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, 'avatarUrl', 'image')} />
-                  </label>
+                  <div className="flex flex-col items-center justify-center w-full h-full">
+                    <Link size={20} className="text-zinc-500 mb-2" />
+                    <input 
+                      type="text" 
+                      placeholder="Paste URL..." 
+                      className="w-[90%] bg-[#0A0A0A] border border-white/10 rounded px-2 py-1 text-[10px] text-white"
+                      onChange={(e) => handleUrlChange('avatarUrl', e.target.value)}
+                    />
+                  </div>
                 )}
               </div>
             </div>
@@ -187,14 +174,17 @@ export default function Customize() {
                     <button onClick={() => handleRemove('cursorUrl')} className="absolute top-2 right-2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-red-500/50 transition-colors z-10">
                       <X size={12} />
                     </button>
-                    <div className="absolute top-2 right-10 px-2 py-0.5 bg-black/50 rounded text-[10px] text-white z-10">.png</div>
                   </>
                 ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-white/5 transition-colors">
-                    <MousePointer2 size={20} className="text-zinc-500 mb-2" />
-                    <span className="text-xs text-zinc-500">Upload Cursor (max 5MB)</span>
-                    <input type="file" accept="image/png" className="hidden" onChange={(e) => handleFileUpload(e, 'cursorUrl', 'image')} />
-                  </label>
+                  <div className="flex flex-col items-center justify-center w-full h-full">
+                    <Link size={20} className="text-zinc-500 mb-2" />
+                    <input 
+                      type="text" 
+                      placeholder="Paste URL..." 
+                      className="w-[90%] bg-[#0A0A0A] border border-white/10 rounded px-2 py-1 text-[10px] text-white"
+                      onChange={(e) => handleUrlChange('cursorUrl', e.target.value)}
+                    />
+                  </div>
                 )}
               </div>
             </div>
@@ -217,14 +207,17 @@ export default function Customize() {
                     <button onClick={() => handleRemove('petUrl')} className="absolute top-2 right-2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-red-500/50 transition-colors z-10">
                       <X size={12} />
                     </button>
-                    <div className="absolute top-2 right-10 px-2 py-0.5 bg-black/50 rounded text-[10px] text-white z-10">.gif</div>
                   </>
                 ) : (
-                  <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-white/5 transition-colors">
-                    <Cat size={20} className="text-zinc-500 mb-2" />
-                    <span className="text-xs text-zinc-500">Upload Pet (max 5MB)</span>
-                    <input type="file" accept="image/gif,image/png" className="hidden" onChange={(e) => handleFileUpload(e, 'petUrl', 'image')} />
-                  </label>
+                  <div className="flex flex-col items-center justify-center w-full h-full">
+                    <Link size={20} className="text-zinc-500 mb-2" />
+                    <input 
+                      type="text" 
+                      placeholder="Paste URL..." 
+                      className="w-[90%] bg-[#0A0A0A] border border-white/10 rounded px-2 py-1 text-[10px] text-white"
+                      onChange={(e) => handleUrlChange('petUrl', e.target.value)}
+                    />
+                  </div>
                 )}
               </div>
             </div>
