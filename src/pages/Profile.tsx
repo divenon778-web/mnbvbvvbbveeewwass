@@ -187,7 +187,7 @@ export default function Profile() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 + i * 0.1 }}
-                  className="w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl flex items-center justify-center gap-3 text-white text-sm font-medium transition-all hover:scale-[1.02]"
+                  className="p-2 hover:scale-110 transition-transform"
                 >
                   <img src={faviconUrl} alt="" className="w-5 h-5 rounded-sm" onError={(e) => (e.currentTarget.style.display = 'none')} />
                 </motion.a>
