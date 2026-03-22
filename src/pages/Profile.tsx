@@ -2,8 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import { collection, query, where, getDocs, updateDoc, doc, increment } from 'firebase/firestore';
 import { db } from '../firebase';
-import { motion } from 'framer-motion';
-import { Eye, Play, Pause } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Eye, Play, Pause, MousePointer2 } from 'lucide-react';
 
 export default function Profile() {
   const { username } = useParams<{ username: string }>();
@@ -12,6 +12,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
+  const [hasEntered, setHasEntered] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -37,15 +38,6 @@ export default function Profile() {
           profileViews: increment(1)
         });
 
-        // Autoplay audio if available
-        if (profileData.audioUrl) {
-          setTimeout(() => {
-            if (audioRef.current) {
-              audioRef.current.play().then(() => setIsPlaying(true)).catch(e => console.error("Autoplay blocked:", e));
-            }
-          }, 1000);
-        }
-
       } catch (err) {
         console.error("Error fetching profile:", err);
         setError(`Error loading profile: ${err instanceof Error ? err.message : String(err)}`);
@@ -56,6 +48,15 @@ export default function Profile() {
 
     fetchProfile();
   }, [username]);
+
+  // Handle audio play after entry
+  useEffect(() => {
+    if (hasEntered && profile?.audioUrl && audioRef.current) {
+      audioRef.current.play()
+        .then(() => setIsPlaying(true))
+        .catch(e => console.error("Playback failed:", e));
+    }
+  }, [hasEntered, profile?.audioUrl]);
 
   const toggleAudio = () => {
     if (audioRef.current) {
@@ -85,134 +86,177 @@ export default function Profile() {
 
   return (
     <div 
-      className="min-h-screen relative flex items-center justify-center overflow-hidden"
+      className="min-h-screen relative flex items-center justify-center overflow-hidden bg-black"
       style={{ cursor: profile.cursorUrl ? `url(${profile.cursorUrl}), auto` : 'auto' }}
     >
-      {/* Background */}
-      <div className="absolute inset-0 z-0 bg-black">
-        {profile.backgroundType === 'video' && profile.backgroundUrl ? (
-          <video src={profile.backgroundUrl} autoPlay loop muted playsInline className="w-full h-full object-cover opacity-60" />
-        ) : profile.backgroundType === 'image' && profile.backgroundUrl ? (
-          <img src={profile.backgroundUrl} alt="background" className="w-full h-full object-cover opacity-60" />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-zinc-900 to-black" />
-        )}
-      </div>
-
-      {/* Background Effects (Mockup for stars/snow) */}
-      {profile.backgroundEffect === 'stars' && (
-        <div className="absolute inset-0 z-0 opacity-50" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
-      )}
-
-      {/* Audio Element */}
-      {profile.audioUrl && (
-        <audio ref={audioRef} src={profile.audioUrl} loop />
-      )}
-
-      {/* Main Card */}
-      <motion.div 
-        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-        animate={{ opacity: 1, scale: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.2, 0.65, 0.3, 0.9] }}
-        className="relative z-10 w-full max-w-[400px] mx-4 bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 flex flex-col items-center shadow-2xl"
-      >
-        {/* Avatar */}
-        <motion.div 
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 20 }}
-          className="w-24 h-24 rounded-full border-2 border-white/20 overflow-hidden mb-4 shadow-[0_0_30px_rgba(255,255,255,0.1)]"
-        >
-          <img 
-            src={profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.username}`} 
-            alt={profile.username} 
-            className="w-full h-full object-cover"
-          />
-        </motion.div>
-
-        {/* Username */}
-        <motion.h1 
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className={`text-2xl font-bold mb-2 ${getUsernameStyle()}`}
-        >
-          {profile.displayName || profile.username}
-        </motion.h1>
-
-        {/* Bio */}
-        {profile.bio && (
-          <motion.p 
+      <AnimatePresence>
+        {!hasEntered && (
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="text-center text-zinc-300 text-sm mb-8"
+            exit={{ opacity: 0 }}
+            onClick={() => setHasEntered(true)}
+            className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/60 backdrop-blur-2xl cursor-pointer group"
           >
-            {profile.bio}
-          </motion.p>
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-center"
+            >
+              <div className="mb-6 relative">
+                <motion.div
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="absolute inset-0 bg-white rounded-full blur-2xl"
+                />
+                <div className="relative w-20 h-20 rounded-full border border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-md">
+                  <MousePointer2 size={32} className="text-white group-hover:scale-110 transition-transform" />
+                </div>
+              </div>
+              <h2 className="text-white text-xl font-medium tracking-widest uppercase mb-2">
+                Click to enter
+              </h2>
+              <p className="text-zinc-500 text-xs tracking-[0.2em] uppercase">
+                @{profile.username}
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Main Content Wrapper with Blur */}
+      <motion.div
+        animate={{ filter: hasEntered ? 'blur(0px)' : 'blur(20px)', opacity: hasEntered ? 1 : 0.5 }}
+        transition={{ duration: 1 }}
+        className="absolute inset-0 flex items-center justify-center"
+      >
+        {/* Background */}
+        <div className="absolute inset-0 z-0 bg-black">
+          {profile.backgroundType === 'video' && profile.backgroundUrl ? (
+            <video src={profile.backgroundUrl} autoPlay loop muted playsInline className="w-full h-full object-cover opacity-60" />
+          ) : profile.backgroundType === 'image' && profile.backgroundUrl ? (
+            <img src={profile.backgroundUrl} alt="background" className="w-full h-full object-cover opacity-60" />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-zinc-900 to-black" />
+          )}
+        </div>
+
+        {/* Background Effects (Mockup for stars/snow) */}
+        {profile.backgroundEffect === 'stars' && (
+          <div className="absolute inset-0 z-0 opacity-50" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
         )}
 
-        {/* Links */}
-        <div className="w-full flex flex-wrap justify-center gap-4 mb-8">
-          {profile.links && profile.links.length > 0 ? (
-            profile.links.map((link: any, i: number) => {
-              // Ensure URL has a protocol
-              const url = link.url.startsWith('http') ? link.url : `https://${link.url}`;
-              const domain = url.replace(/^https?:\/\//, '').split('/')[0];
-              const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-              
-              return (
-                <motion.a
-                  key={link.id}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.6 + i * 0.1 }}
-                  className="p-2 hover:scale-110 transition-transform"
-                >
-                  <img src={faviconUrl} alt="" className="w-8 h-8 rounded-sm" onError={(e) => (e.currentTarget.style.display = 'none')} />
-                </motion.a>
-              );
-            })
-          ) : null}
-        </div>
+        {/* Audio Element */}
+        {profile.audioUrl && (
+          <audio ref={audioRef} src={profile.audioUrl} loop />
+        )}
 
-        {/* Views Counter */}
-        <div className="absolute bottom-4 left-4 flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10">
-          <Eye size={12} className="text-zinc-400" />
-          <span className="text-xs text-zinc-300">{profile.profileViews || 0}</span>
-        </div>
-
-      </motion.div>
-
-      {/* Audio Toggle */}
-      {profile.audioUrl && (
-        <button 
-          onClick={toggleAudio}
-          className="absolute bottom-6 right-6 z-20 w-10 h-10 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors"
-        >
-          {isPlaying ? <Pause size={16} /> : <Play size={16} />}
-        </button>
-      )}
-
-      {/* Custom Pet */}
-      {profile.petUrl && (
+        {/* Main Card */}
         <motion.div 
-          initial={{ y: 100 }}
-          animate={{ y: 0 }}
-          transition={{ type: 'spring', delay: 1 }}
-          className="absolute bottom-0 right-20 z-20 w-32 h-32 pointer-events-none"
+          initial={{ opacity: 0, scale: 0.9, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.2, 0.65, 0.3, 0.9] }}
+          className="relative z-10 w-full max-w-[400px] mx-4 bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 flex flex-col items-center shadow-2xl"
         >
-          <img src={profile.petUrl} alt="pet" className="w-full h-full object-contain" />
-        </motion.div>
-      )}
+          {/* Avatar */}
+          <motion.div 
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 20 }}
+            className="w-24 h-24 rounded-full border-2 border-white/20 overflow-hidden mb-4 shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+          >
+            <img 
+              src={profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.username}`} 
+              alt={profile.username} 
+              className="w-full h-full object-cover"
+            />
+          </motion.div>
 
-      {/* Watermark */}
-      <div className="absolute bottom-6 left-6 z-20 w-8 h-8 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white text-xs font-bold">
-        N
-      </div>
+          {/* Username */}
+          <motion.h1 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className={`text-2xl font-bold mb-2 ${getUsernameStyle()}`}
+          >
+            {profile.displayName || profile.username}
+          </motion.h1>
+
+          {/* Bio */}
+          {profile.bio && (
+            <motion.p 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+              className="text-center text-zinc-300 text-sm mb-8"
+            >
+              {profile.bio}
+            </motion.p>
+          )}
+
+          {/* Links */}
+          <div className="w-full flex flex-wrap justify-center gap-4 mb-8">
+            {profile.links && profile.links.length > 0 ? (
+              profile.links.map((link: any, i: number) => {
+                // Ensure URL has a protocol
+                const url = link.url.startsWith('http') ? link.url : `https://${link.url}`;
+                const domain = url.replace(/^https?:\/\//, '').split('/')[0];
+                const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+                
+                return (
+                  <motion.a
+                    key={link.id}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.6 + i * 0.1 }}
+                    className="p-2 hover:scale-110 transition-transform"
+                  >
+                    <img src={faviconUrl} alt="" className="w-8 h-8 rounded-sm" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                  </motion.a>
+                );
+              })
+            ) : null}
+          </div>
+
+          {/* Views Counter */}
+          <div className="absolute bottom-4 left-4 flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10">
+            <Eye size={12} className="text-zinc-400" />
+            <span className="text-xs text-zinc-300">{profile.profileViews || 0}</span>
+          </div>
+
+        </motion.div>
+
+        {/* Audio Toggle */}
+        {profile.audioUrl && (
+          <button 
+            onClick={toggleAudio}
+            className="absolute bottom-6 right-6 z-20 w-10 h-10 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+          >
+            {isPlaying ? <Pause size={16} /> : <Play size={16} />}
+          </button>
+        )}
+
+        {/* Custom Pet */}
+        {profile.petUrl && (
+          <motion.div 
+            initial={{ y: 100 }}
+            animate={{ y: 0 }}
+            transition={{ type: 'spring', delay: 1 }}
+            className="absolute bottom-0 right-20 z-20 w-32 h-32 pointer-events-none"
+          >
+            <img src={profile.petUrl} alt="pet" className="w-full h-full object-contain" />
+          </motion.div>
+        )}
+
+        {/* Watermark */}
+        <div className="absolute bottom-6 left-6 z-20 w-8 h-8 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white text-xs font-bold">
+          N
+        </div>
+      </motion.div>
     </div>
   );
 }
