@@ -318,7 +318,7 @@ export default function Store() {
               disabled={!!cooldownTime}
               className={`flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-medium transition-colors ${cooldownTime ? 'bg-zinc-500/10 border-zinc-500/20 text-zinc-500 cursor-not-allowed' : 'bg-zinc-500/10 border-zinc-500/20 text-zinc-300 hover:bg-zinc-500/20'}`}
             >
-              <Coins size={16} className="text-yellow-500" />
+              <Coins size={16} className="text-zinc-500" />
               {cooldownTime ? `Claim in ${cooldownTime}` : 'Claim Daily Coins'}
             </button>
             <button 
@@ -412,7 +412,7 @@ export default function Store() {
                       </div>
                     )}
                     <div className="flex items-center gap-1.5 bg-zinc-500/10 px-2.5 py-1 rounded-full border border-zinc-500/20">
-                      <Coins size={12} className="text-yellow-500" />
+                      <Coins size={12} className="text-zinc-500" />
                       <span className="text-xs font-bold text-white">{item.price}</span>
                     </div>
                   </div>
