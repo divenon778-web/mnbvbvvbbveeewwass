@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import Customize from './pages/Customize';
+import Store from './pages/Store';
 import Profile from './pages/Profile';
 
 const PrivateRoute = ({ children }: { children: React.ReactNode }) => {
@@ -26,6 +27,7 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
           <Route path="/dashboard/customize" element={<PrivateRoute><Customize /></PrivateRoute>} />
+          <Route path="/dashboard/store" element={<PrivateRoute><Store /></PrivateRoute>} />
           <Route path="/:username" element={<Profile />} />
         </Routes>
       </Router>
