@@ -428,13 +428,12 @@ export default function Profile() {
           )}
 
           {/* Links */}
-          <div className="w-full flex flex-col items-center gap-4 mb-8">
+          <div className="w-full flex flex-wrap justify-center gap-4 mb-8">
             {profile.links && profile.links.length > 0 ? (
               profile.links.map((link: any, i: number) => {
                 const url = link.url.startsWith('http') ? link.url : `https://${link.url}`;
                 const domain = url.replace(/^https?:\/\//, '').split('/')[0];
                 const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-                const blockStyleProps = getBlockStyles();
                 
                 return (
                   <motion.a
@@ -442,18 +441,14 @@ export default function Profile() {
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.6 + i * 0.1 }}
                     onMouseEnter={() => setIsHovering(true)}
                     onMouseLeave={() => setIsHovering(false)}
-                    className={`${blockStyleProps.className} ${profile.blockStyle === 'neobrutal' ? 'neobrutal-hover' : ''}`}
-                    style={blockStyleProps.style}
+                    className="p-2 hover:scale-110 transition-transform bg-white/5 border border-white/10 rounded-xl hover:bg-white/10"
                   >
-                    <div className="flex items-center gap-3">
-                      <img src={faviconUrl} alt="" className="w-6 h-6 rounded-sm bg-white/10" onError={(e) => (e.currentTarget.style.display = 'none')} />
-                      <span>{link.title || "Link"}</span>
-                    </div>
+                    <img src={faviconUrl} alt="" className="w-8 h-8 rounded-sm" onError={(e) => (e.currentTarget.style.display = 'none')} />
                   </motion.a>
                 );
               })
