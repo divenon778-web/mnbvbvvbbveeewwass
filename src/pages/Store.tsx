@@ -477,38 +477,17 @@ export default function Store() {
               >
                 <h2 className="text-2xl font-bold text-white mb-6">Sell an Item</h2>
                 <form onSubmit={handleSellItem} className="space-y-6">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs text-zinc-500 uppercase font-bold tracking-tighter">Item Type</label>
-                      <div className="flex gap-2">
-                        <button 
-                          type="button"
-                          onClick={() => setNewItem({ ...newItem, type: 'file' })}
-                          className={`flex-1 py-3 rounded-xl border text-sm font-medium transition-all ${newItem.type === 'file' ? 'bg-white text-black border-white' : 'bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10'}`}
-                        >
-                          File
-                        </button>
-                        <button 
-                          type="button"
-                          onClick={() => setNewItem({ ...newItem, type: 'template' })}
-                          className={`flex-1 py-3 rounded-xl border text-sm font-medium transition-all ${newItem.type === 'template' ? 'bg-white text-black border-white' : 'bg-white/5 text-zinc-400 border-white/5 hover:bg-white/10'}`}
-                        >
-                          Template
-                        </button>
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <label className="text-xs text-zinc-500 uppercase font-bold tracking-tighter">Price (Coins)</label>
-                      <div className="relative">
-                        <Coins size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
-                        <input 
-                          type="number"
-                          value={newItem.price}
-                          onChange={(e) => setNewItem({ ...newItem, price: parseInt(e.target.value) || 0 })}
-                          className="w-full bg-white/5 border border-white/5 rounded-xl py-3 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-white/20 transition-colors"
-                          placeholder="0"
-                        />
-                      </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs text-zinc-500 uppercase font-bold tracking-tighter">Price (Coins)</label>
+                    <div className="relative">
+                      <Coins size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+                      <input 
+                        type="number"
+                        value={newItem.price}
+                        onChange={(e) => setNewItem({ ...newItem, price: parseInt(e.target.value) || 0 })}
+                        className="w-full bg-white/5 border border-white/5 rounded-xl py-3 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-white/20 transition-colors"
+                        placeholder="0"
+                      />
                     </div>
                   </div>
 
