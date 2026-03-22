@@ -210,6 +210,75 @@ export default function Profile() {
   if (error) return <div className="min-h-screen bg-black flex items-center justify-center text-white">{error}</div>;
   if (!profile) return null;
 
+  const themeColor = profile.themeColor || '#ffffff';
+
+  const getFontFamily = () => {
+    switch (profile.font) {
+      case 'roboto': return "'Roboto', sans-serif";
+      case 'space-grotesk': return "'Space Grotesk', sans-serif";
+      case 'playfair': return "'Playfair Display', serif";
+      case 'comic-neue': return "'Comic Neue', cursive";
+      case 'vt323': return "'VT323', monospace";
+      case 'inter':
+      default: return "'Inter', sans-serif";
+    }
+  };
+
+  const getBlockStyles = () => {
+    switch (profile.blockStyle) {
+      case 'glass':
+        return {
+          className: "flex items-center justify-between w-full px-6 py-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl text-sm font-bold text-white hover:bg-white/20 transition-all hover:scale-[1.02] group",
+          style: {}
+        };
+      case 'neobrutal':
+        return {
+          className: "flex items-center justify-between w-full px-6 py-4 bg-[#0A0A0A] border-[3px] rounded-none text-sm font-bold text-white transition-all hover:translate-x-1 hover:translate-y-1 group neobrutal-hover",
+          style: { 
+            borderColor: themeColor, 
+            boxShadow: `6px 6px 0px ${themeColor}`,
+          }
+        };
+      case 'minimal':
+        return {
+          className: "flex items-center justify-between w-full px-6 py-4 bg-transparent border-b-2 rounded-none text-sm font-bold text-white hover:bg-white/5 transition-all group",
+          style: { borderColor: themeColor }
+        };
+      case 'default':
+      default:
+        return {
+          className: "flex items-center justify-between w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold text-white hover:bg-white/10 transition-all group",
+          style: {}
+        };
+    }
+  };
+
+  const getMainCardStyle = () => {
+    switch (profile.blockStyle) {
+      case 'neobrutal':
+        return {
+          className: "relative z-10 w-full max-w-[400px] mx-4 bg-[#0A0A0A] border-[4px] rounded-none p-8 flex flex-col items-center",
+          style: { borderColor: themeColor, boxShadow: `12px 12px 0px ${themeColor}` }
+        };
+      case 'glass':
+        return {
+          className: "relative z-10 w-full max-w-[400px] mx-4 bg-white/10 backdrop-blur-2xl border border-white/30 rounded-[3rem] p-8 flex flex-col items-center shadow-2xl",
+          style: {}
+        };
+      case 'minimal':
+        return {
+          className: "relative z-10 w-full max-w-[400px] mx-4 bg-transparent border border-white/10 rounded-3xl p-8 flex flex-col items-center",
+          style: {}
+        };
+      case 'default':
+      default:
+        return {
+          className: "relative z-10 w-full max-w-[400px] mx-4 bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 flex flex-col items-center shadow-2xl",
+          style: {}
+        };
+    }
+  };
+
   const getUsernameStyle = () => {
     switch (profile.usernameEffect) {
       case 'glow': return 'text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-pulse';
@@ -223,7 +292,16 @@ export default function Profile() {
   return (
     <div 
       className={`min-h-screen relative flex items-center justify-center overflow-hidden bg-black ${profile.cursorUrl ? '[&_*]:cursor-none cursor-none' : ''}`}
+      style={{ fontFamily: getFontFamily() }}
     >
+      <style>
+        {`@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Roboto:wght@400;700&family=Space+Grotesk:wght@400;700&family=VT323&display=swap');
+          
+          .neobrutal-hover:hover {
+            box-shadow: 0px 0px 0px ${themeColor} !important;
+          }
+        `}
+      </style>
       {/* Custom Cursor Follower */}
       {profile.cursorUrl && (
         <motion.div
@@ -309,7 +387,8 @@ export default function Profile() {
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.2, 0.65, 0.3, 0.9] }}
-          className="relative z-10 w-full max-w-[400px] mx-4 bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 flex flex-col items-center shadow-2xl"
+          className={getMainCardStyle().className}
+          style={getMainCardStyle().style}
         >
           {/* Avatar */}
           <motion.div 
@@ -331,6 +410,7 @@ export default function Profile() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
             className={`text-2xl font-bold mb-2 ${getUsernameStyle()}`}
+            style={{ color: profile.usernameEffect === 'gradient' ? undefined : themeColor }}
           >
             {profile.displayName || profile.username}
           </motion.h1>
@@ -348,27 +428,32 @@ export default function Profile() {
           )}
 
           {/* Links */}
-          <div className="w-full flex flex-wrap justify-center gap-4 mb-8">
+          <div className="w-full flex flex-col items-center gap-4 mb-8">
             {profile.links && profile.links.length > 0 ? (
               profile.links.map((link: any, i: number) => {
                 const url = link.url.startsWith('http') ? link.url : `https://${link.url}`;
                 const domain = url.replace(/^https?:\/\//, '').split('/')[0];
                 const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+                const blockStyleProps = getBlockStyles();
                 
                 return (
                   <motion.a
-                    key={link.id}
+                    key={link.id || i}
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    initial={{ opacity: 0, scale: 0 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.6 + i * 0.1 }}
                     onMouseEnter={() => setIsHovering(true)}
                     onMouseLeave={() => setIsHovering(false)}
-                    className="p-2 hover:scale-110 transition-transform"
+                    className={`${blockStyleProps.className} ${profile.blockStyle === 'neobrutal' ? 'neobrutal-hover' : ''}`}
+                    style={blockStyleProps.style}
                   >
-                    <img src={faviconUrl} alt="" className="w-8 h-8 rounded-sm" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                    <div className="flex items-center gap-3">
+                      <img src={faviconUrl} alt="" className="w-6 h-6 rounded-sm bg-white/10" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                      <span>{link.title || "Link"}</span>
+                    </div>
                   </motion.a>
                 );
               })
