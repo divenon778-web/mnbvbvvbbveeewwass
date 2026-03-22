@@ -21,7 +21,7 @@ interface StoreItem {
   sales: number;
 }
 
-import { handleFirestoreError, OperationType } from '../utils/firestoreErrorHandler';
+import { handleFirestoreError, OperationType } from '../utils/dbErrorHandler';
 
 export default function Profile() {
   const { username } = useParams<{ username: string }>();
