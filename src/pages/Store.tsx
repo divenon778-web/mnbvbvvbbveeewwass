@@ -248,9 +248,9 @@ export default function Store() {
             <button 
               onClick={claimDailyCoins}
               disabled={!!cooldownTime}
-              className={`flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-medium transition-colors ${cooldownTime ? 'bg-zinc-500/10 border-zinc-500/20 text-zinc-500 cursor-not-allowed' : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500 hover:bg-yellow-500/20'}`}
+              className={`flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-medium transition-colors ${cooldownTime ? 'bg-zinc-500/10 border-zinc-500/20 text-zinc-500 cursor-not-allowed' : 'bg-zinc-500/10 border-zinc-500/20 text-zinc-300 hover:bg-zinc-500/20'}`}
             >
-              <Coins size={16} />
+              <Coins size={16} className="text-yellow-500" />
               {cooldownTime ? `Claim in ${cooldownTime}` : 'Claim Daily Coins'}
             </button>
             <button 
@@ -304,9 +304,9 @@ export default function Store() {
                   <div className={`p-2 rounded-lg ${item.type === 'template' ? 'bg-purple-500/10 text-purple-500' : 'bg-blue-500/10 text-blue-500'}`}>
                     {item.type === 'template' ? <Layout size={20} /> : <FileText size={20} />}
                   </div>
-                  <div className="flex items-center gap-1.5 bg-yellow-500/10 px-2.5 py-1 rounded-full border border-yellow-500/20">
+                  <div className="flex items-center gap-1.5 bg-zinc-500/10 px-2.5 py-1 rounded-full border border-zinc-500/20">
                     <Coins size={12} className="text-yellow-500" />
-                    <span className="text-xs font-bold text-yellow-500">{item.price}</span>
+                    <span className="text-xs font-bold text-white">{item.price}</span>
                   </div>
                 </div>
 
