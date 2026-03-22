@@ -34,7 +34,9 @@ export default function Customize() {
     if (!user || !profile) return;
     setSaving(true);
     try {
-      await updateDoc(doc(db, 'profiles', user.uid), profile);
+      // Exclude profileViews from update to prevent overwriting
+      const { profileViews, ...updateData } = profile;
+      await updateDoc(doc(db, 'profiles', user.uid), updateData);
       toast.success('Profile updated successfully');
     } catch (error: any) {
       if (error.message.includes('Quota') || error.message.includes('too large')) {
