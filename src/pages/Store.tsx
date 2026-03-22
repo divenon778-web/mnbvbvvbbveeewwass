@@ -38,7 +38,7 @@ export default function Store() {
     name: '',
     description: '',
     price: 0,
-    type: 'file' as 'file' | 'template',
+    type: 'file' as 'file',
     fileUrl: '',
     templateData: null
   });
@@ -387,7 +387,7 @@ export default function Store() {
                 className="bg-[#111111] border border-white/5 rounded-2xl p-6 flex flex-col h-full hover:border-white/10 transition-colors"
               >
                 <div className="flex justify-between items-start mb-4">
-                  <div className={`p-2 rounded-lg ${item.type === 'template' ? 'bg-purple-500/10 text-purple-500' : 'bg-blue-500/10 text-blue-500'}`}>
+                  <div className={`p-2 rounded-lg ${item.type === 'template' ? 'bg-zinc-500/10 text-zinc-500' : 'bg-blue-500/10 text-blue-500'}`}>
                     {item.type === 'template' ? <Layout size={20} /> : <FileText size={20} />}
                   </div>
                   <div className="flex items-center gap-2">
@@ -516,7 +516,7 @@ export default function Store() {
 
                   <div className="flex flex-col gap-2">
                     <label className="text-xs text-zinc-500 uppercase font-bold tracking-tighter">
-                      {newItem.type === 'file' ? 'File URL' : 'Template Preview Image URL'}
+                      File URL
                     </label>
                     <input 
                       type="url"
