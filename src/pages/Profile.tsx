@@ -21,6 +21,8 @@ interface StoreItem {
   sales: number;
 }
 
+import { handleFirestoreError, OperationType } from '../utils/firestoreErrorHandler';
+
 export default function Profile() {
   const { username } = useParams<{ username: string }>();
   const { user, userData, refreshUserData } = useAuth();
@@ -65,15 +67,25 @@ export default function Profile() {
         setProfileId(profileDoc.id);
 
         // Increment views
-        await updateDoc(profileDoc.ref, {
-          profileViews: increment(1)
-        });
+        try {
+          await updateDoc(profileDoc.ref, {
+            profileViews: increment(1)
+          });
+        } catch (e) {
+          // Non-critical view increment failure
+          console.warn("Failed to increment view count", e);
+        }
 
         // Record historical view
-        await addDoc(collection(db, 'profile_views'), {
-          profileId: profileDoc.id,
-          timestamp: serverTimestamp()
-        });
+        try {
+          await addDoc(collection(db, 'profile_views'), {
+            profileId: profileDoc.id,
+            timestamp: serverTimestamp()
+          });
+        } catch (e) {
+          // Non-critical historical view recording failure
+          console.warn("Failed to record historical view", e);
+        }
 
         // Fetch store items if enabled
         if (profileData.showStoreOnBio) {
@@ -116,20 +128,49 @@ export default function Profile() {
     }
 
     try {
-      await updateDoc(doc(db, 'users', user.uid), { coins: increment(-item.price) });
-      await updateDoc(doc(db, 'users', item.sellerId), { coins: increment(item.price) });
-      await addDoc(collection(db, 'transactions'), {
-        buyerId: user.uid,
-        sellerId: item.sellerId,
-        itemId: item.id,
-        amount: item.price,
-        timestamp: serverTimestamp()
-      });
-      await setDoc(doc(db, `purchased_items/${user.uid}/items`, item.id), {
-        itemId: item.id,
-        purchasedAt: serverTimestamp()
-      });
-      await updateDoc(doc(db, 'store_items', item.id), { sales: increment(1) });
+      // 1. Deduct coins from buyer
+      try {
+        await updateDoc(doc(db, 'users', user.uid), { coins: increment(-item.price) });
+      } catch (e) {
+        handleFirestoreError(e, OperationType.WRITE, `users/${user.uid}`);
+      }
+
+      // 2. Add coins to seller
+      try {
+        await updateDoc(doc(db, 'users', item.sellerId), { coins: increment(item.price) });
+      } catch (e) {
+        handleFirestoreError(e, OperationType.WRITE, `users/${item.sellerId}`);
+      }
+
+      // 3. Record transaction
+      try {
+        await addDoc(collection(db, 'transactions'), {
+          buyerId: user.uid,
+          sellerId: item.sellerId,
+          itemId: item.id,
+          amount: item.price,
+          timestamp: serverTimestamp()
+        });
+      } catch (e) {
+        handleFirestoreError(e, OperationType.CREATE, 'transactions');
+      }
+
+      // 4. Add to purchased items
+      try {
+        await setDoc(doc(db, `purchased_items/${user.uid}/items`, item.id), {
+          itemId: item.id,
+          purchasedAt: serverTimestamp()
+        });
+      } catch (e) {
+        handleFirestoreError(e, OperationType.WRITE, `purchased_items/${user.uid}/items/${item.id}`);
+      }
+
+      // 5. Increment sales count
+      try {
+        await updateDoc(doc(db, 'store_items', item.id), { sales: increment(1) });
+      } catch (e) {
+        handleFirestoreError(e, OperationType.WRITE, `store_items/${item.id}`);
+      }
 
       toast.success(`Purchased ${item.name}!`);
       refreshUserData();
