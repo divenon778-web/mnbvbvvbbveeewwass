@@ -28,8 +28,14 @@ export default function Profile() {
           return;
         }
 
-        const profileData = querySnapshot.docs[0].data();
+        const profileDoc = querySnapshot.docs[0];
+        const profileData = profileDoc.data();
         setProfile(profileData);
+
+        // Increment views on profile doc
+        await updateDoc(profileDoc.ref, {
+          profileViews: increment(1)
+        });
 
         // Autoplay audio if available
         if (profileData.audioUrl) {
@@ -38,21 +44,6 @@ export default function Profile() {
               audioRef.current.play().then(() => setIsPlaying(true)).catch(e => console.error("Autoplay blocked:", e));
             }
           }, 1000);
-        }
-
-        // Fetch user doc for views and badges
-        try {
-          const userQ = query(collection(db, 'users'), where('username', '==', username.toLowerCase()));
-          const userSnapshot = await getDocs(userQ);
-          if (!userSnapshot.empty) {
-            const uDoc = userSnapshot.docs[0];
-            setUserDoc(uDoc.data());
-            await updateDoc(uDoc.ref, {
-              profileViews: increment(1)
-            });
-          }
-        } catch (err) {
-          console.log('Could not fetch user doc (likely permission error, ignoring):', err);
         }
 
       } catch (err) {
@@ -202,7 +193,7 @@ export default function Profile() {
         {/* Views Counter */}
         <div className="absolute bottom-4 left-4 flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10">
           <Eye size={12} className="text-zinc-400" />
-          <span className="text-xs text-zinc-300">{userDoc?.profileViews || 0}</span>
+          <span className="text-xs text-zinc-300">{profile.profileViews || 0}</span>
         </div>
 
       </motion.div>
