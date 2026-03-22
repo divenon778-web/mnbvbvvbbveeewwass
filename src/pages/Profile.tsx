@@ -166,7 +166,7 @@ export default function Profile() {
   const getUsernameStyle = () => {
     switch (profile.usernameEffect) {
       case 'glow': return 'text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-pulse';
-      case 'gradient': return 'text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 animate-gradient-x';
+      case 'gradient': return 'text-transparent bg-clip-text bg-gradient-to-r from-zinc-400 via-zinc-500 to-zinc-600 animate-gradient-x';
       case 'sparkle': return 'text-yellow-300 drop-shadow-[0_0_8px_rgba(253,224,71,0.8)]';
       case 'glitch': return 'text-white animate-glitch';
       default: return 'text-white';
@@ -453,7 +453,7 @@ export default function Profile() {
                 {storeItems.map((item) => (
                   <div key={item.id} className="bg-white/5 border border-white/5 rounded-2xl p-4 flex flex-col hover:border-white/10 transition-colors">
                     <div className="flex justify-between items-start mb-3">
-                      <div className={`p-2 rounded-lg ${item.type === 'template' ? 'bg-purple-500/10 text-purple-500' : 'bg-blue-500/10 text-blue-500'}`}>
+                      <div className={`p-2 rounded-lg ${item.type === 'template' ? 'bg-zinc-500/10 text-zinc-500' : 'bg-blue-500/10 text-blue-500'}`}>
                         {item.type === 'template' ? <Layout size={16} /> : <FileText size={16} />}
                       </div>
                       <div className="flex items-center gap-1 bg-zinc-500/10 px-2 py-0.5 rounded-full">
