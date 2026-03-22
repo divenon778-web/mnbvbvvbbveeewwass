@@ -107,6 +107,20 @@
     "/purchased_items/{userId}/items/{itemId}": {
       "schema": { "type": "object", "properties": { "itemId": { "type": "string" }, "purchasedAt": { "type": "string", "format": "date-time" } } },
       "description": "Items purchased by a user"
+    },
+    "/templates/{templateId}": {
+      "schema": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "userId": { "type": "string" },
+          "name": { "type": "string" },
+          "data": { "type": "object" },
+          "createdAt": { "type": "string", "format": "date-time" }
+        },
+        "required": ["id", "userId", "name", "data", "createdAt"]
+      },
+      "description": "User's private saved templates"
     }
   }
 }
