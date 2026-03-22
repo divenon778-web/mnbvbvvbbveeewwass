@@ -77,7 +77,12 @@ export default function Customize() {
 
   const handleApplyTemplate = (templateData: any) => {
     if (!confirm('Are you sure you want to apply this template? This will overwrite your current settings.')) return;
-    setProfile(templateData);
+    setProfile({
+      ...templateData,
+      uid: profile?.uid,
+      username: profile?.username,
+      profileViews: profile?.profileViews || 0
+    });
     toast.success('Template applied! Don\'t forget to save changes.');
   };
 
