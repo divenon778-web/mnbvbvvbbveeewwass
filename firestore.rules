@@ -38,7 +38,8 @@ service cloud.firestore {
              (!('discordUsername' in data) || data.discordUsername is string) &&
              (!('bannerStyle' in data) || data.bannerStyle is bool) &&
              (!('usernameStyle' in data) || data.usernameStyle is bool) &&
-             (!('coins' in data) || data.coins is number);
+             (!('coins' in data) || data.coins is number) &&
+             (!('lastClaimedAt' in data) || data.lastClaimedAt is timestamp || data.lastClaimedAt is string);
     }
     
     function isValidProfile(data) {
