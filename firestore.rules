@@ -1,0 +1,75 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    function uidUnchanged() {
+      return !('uid' in request.resource.data) || request.resource.data.uid == request.auth.uid;
+    }
+    
+    function uidNotModified() {
+      return !('uid' in request.resource.data) || request.resource.data.uid == resource.data.uid;
+    }
+    
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+    
+    function isValidUser(data) {
+      return data.uid is string &&
+             data.username is string && data.username.size() > 0 && data.username.size() <= 30 &&
+             data.email is string &&
+             data.createdAt is string &&
+             (!('profileViews' in data) || data.profileViews is number) &&
+             (!('visibility' in data) || data.visibility in ['public', 'private']) &&
+             (!('discordLinked' in data) || data.discordLinked is bool) &&
+             (!('discordUsername' in data) || data.discordUsername is string) &&
+             (!('bannerStyle' in data) || data.bannerStyle is bool) &&
+             (!('usernameStyle' in data) || data.usernameStyle is bool);
+    }
+    
+    function isValidProfile(data) {
+      return data.uid is string &&
+             data.username is string && data.username.size() > 0 && data.username.size() <= 30 &&
+             (!('displayName' in data) || data.displayName is string) &&
+             (!('bio' in data) || data.bio is string) &&
+             (!('backgroundUrl' in data) || data.backgroundUrl is string) &&
+             (!('backgroundType' in data) || data.backgroundType in ['video', 'image', 'color']) &&
+             (!('audioUrl' in data) || data.audioUrl is string) &&
+             (!('avatarUrl' in data) || data.avatarUrl is string) &&
+             (!('cursorUrl' in data) || data.cursorUrl is string) &&
+             (!('petUrl' in data) || data.petUrl is string) &&
+             (!('usernameEffect' in data) || data.usernameEffect is string) &&
+             (!('backgroundEffect' in data) || data.backgroundEffect is string) &&
+             (!('links' in data) || data.links is list);
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && hasRequiredFields(['uid', 'username', 'email', 'createdAt']) && isValidUser(request.resource.data) && uidUnchanged();
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) && uidNotModified();
+    }
+    
+    match /profiles/{userId} {
+      allow read: if true; // Publicly readable for bio links
+      allow create: if isOwner(userId) && hasRequiredFields(['uid', 'username']) && isValidProfile(request.resource.data) && uidUnchanged();
+      allow update: if isOwner(userId) && isValidProfile(request.resource.data) && uidNotModified();
+    }
+  }
+}
