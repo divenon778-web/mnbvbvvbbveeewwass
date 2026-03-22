@@ -53,7 +53,6 @@ export default function Signup() {
         username: username.toLowerCase(),
         email: authUser.email || '',
         createdAt: now,
-        profileViews: 0,
         visibility: 'public',
         discordLinked: false,
         discordUsername: '',
@@ -74,7 +73,8 @@ export default function Signup() {
         petUrl: '',
         usernameEffect: 'none',
         backgroundEffect: 'none',
-        links: []
+        links: [],
+        profileViews: 0
       });
 
       toast.success('Account created successfully');
