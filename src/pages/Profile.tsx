@@ -69,6 +69,12 @@ export default function Profile() {
           profileViews: increment(1)
         });
 
+        // Record historical view
+        await addDoc(collection(db, 'profile_views'), {
+          profileId: profileDoc.id,
+          timestamp: serverTimestamp()
+        });
+
         // Fetch store items if enabled
         if (profileData.showStoreOnBio) {
           const itemsQ = query(
