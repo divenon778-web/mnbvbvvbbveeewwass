@@ -37,7 +37,8 @@ service cloud.firestore {
              (!('discordLinked' in data) || data.discordLinked is bool) &&
              (!('discordUsername' in data) || data.discordUsername is string) &&
              (!('bannerStyle' in data) || data.bannerStyle is bool) &&
-             (!('usernameStyle' in data) || data.usernameStyle is bool);
+             (!('usernameStyle' in data) || data.usernameStyle is bool) &&
+             (!('coins' in data) || data.coins is number);
     }
     
     function isValidProfile(data) {
@@ -53,8 +54,21 @@ service cloud.firestore {
              (!('petUrl' in data) || data.petUrl is string) &&
              (!('usernameEffect' in data) || data.usernameEffect is string) &&
              (!('backgroundEffect' in data) || data.backgroundEffect is string) &&
+             (!('showStoreOnBio' in data) || data.showStoreOnBio is bool) &&
              (!('links' in data) || data.links is list) &&
              (!('profileViews' in data) || data.profileViews is number);
+    }
+
+    function isValidStoreItem(data) {
+      return data.id is string &&
+             data.sellerId is string &&
+             data.name is string && data.name.size() > 0 &&
+             data.price is number && data.price >= 0 &&
+             data.type in ['file', 'template'] &&
+             (!('description' in data) || data.description is string) &&
+             (!('fileUrl' in data) || data.fileUrl is string) &&
+             (!('templateData' in data) || data.templateData is map) &&
+             (!('sales' in data) || data.sales is number);
     }
 
     // ===============================================================
@@ -73,6 +87,25 @@ service cloud.firestore {
       allow update: if (isOwner(userId) && isValidProfile(request.resource.data) && uidNotModified()) ||
                        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['profileViews']) && 
                         request.resource.data.profileViews == (resource.data.profileViews != null ? resource.data.profileViews : 0) + 1);
+    }
+
+    match /store_items/{itemId} {
+      allow read: if true;
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.sellerId && isValidStoreItem(request.resource.data);
+      allow update: if (isAuthenticated() && request.auth.uid == resource.data.sellerId && isValidStoreItem(request.resource.data)) ||
+                       (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['sales']) && 
+                        request.resource.data.sales == (resource.data.sales != null ? resource.data.sales : 0) + 1);
+      allow delete: if isAuthenticated() && request.auth.uid == resource.data.sellerId;
+    }
+
+    match /transactions/{transactionId} {
+      allow read: if isAuthenticated() && (request.auth.uid == resource.data.buyerId || request.auth.uid == resource.data.sellerId);
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.buyerId;
+    }
+
+    match /purchased_items/{userId}/items/{itemId} {
+      allow read: if isOwner(userId);
+      allow create, update: if isOwner(userId);
     }
   }
 }
