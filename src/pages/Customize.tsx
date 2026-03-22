@@ -512,7 +512,7 @@ export default function Customize() {
                   </div>
 
                   <div className="mt-12 space-y-4">
-                    <h4 className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Your Private Templates</h4>
+                    <h4 className="text-sm font-bold text-zinc-400 uppercase tracking-widest">Downloaded Templates</h4>
                     {fetchingTemplates ? (
                       <div className="text-zinc-500 text-sm">Loading templates...</div>
                     ) : savedTemplates.length === 0 ? (
