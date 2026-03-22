@@ -35,7 +35,13 @@ export default function Dashboard() {
               <span className="text-xs text-zinc-500">UID</span>
               <Hash size={14} className="text-zinc-400" />
             </div>
-            <div className="text-lg font-medium text-white">{userData?.uid?.substring(0, 4)}</div>
+            <div className="text-lg font-medium text-white">
+              {userData?.uid ? (
+                Math.abs(userData.uid.split('').reduce((acc: number, char: string) => {
+                  return ((acc << 5) - acc) + char.charCodeAt(0);
+                }, 0) % 100000).toString().padStart(5, '0')
+              ) : '00000'}
+            </div>
           </div>
           <div className="p-4 rounded-xl bg-[#111111] border border-white/5 flex flex-col justify-between h-24">
             <div className="flex justify-between items-start">
