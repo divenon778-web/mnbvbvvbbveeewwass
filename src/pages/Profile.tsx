@@ -450,9 +450,31 @@ export default function Profile() {
                 const url = link.url.startsWith('http') ? link.url : `https://${link.url}`;
                 const domain = url.replace(/^https?:\/\//, '').split('/')[0];
                 const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-                let iconStyle = "w-8 h-8 rounded-sm ";
-                if (profile.socialStyle === 'monochrome') iconStyle += "grayscale contrast-125";
-                else if (profile.socialStyle === 'minimal') iconStyle += "grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all";
+                let iconContent;
+                if (profile.socialStyle === 'custom') {
+                  const customColor = profile.socialColor || '#ffffff';
+                  iconContent = (
+                    <div 
+                      className="w-8 h-8"
+                      style={{
+                        backgroundColor: customColor,
+                        WebkitMaskImage: `url('${faviconUrl}')`,
+                        WebkitMaskSize: 'contain',
+                        WebkitMaskRepeat: 'no-repeat',
+                        WebkitMaskPosition: 'center',
+                        maskImage: `url('${faviconUrl}')`,
+                        maskSize: 'contain',
+                        maskRepeat: 'no-repeat',
+                        maskPosition: 'center',
+                      }}
+                    />
+                  );
+                } else {
+                  let iconStyle = "w-8 h-8 rounded-sm ";
+                  if (profile.socialStyle === 'monochrome') iconStyle += "grayscale contrast-125";
+                  else if (profile.socialStyle === 'minimal') iconStyle += "grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all";
+                  iconContent = <img src={faviconUrl} alt="" className={iconStyle} onError={(e) => (e.currentTarget.style.display = 'none')} />;
+                }
 
                 return (
                   <motion.a
@@ -465,7 +487,7 @@ export default function Profile() {
                     transition={{ delay: 0.6 + i * 0.1 }}
                     className="hover:scale-110 transition-transform drop-shadow-md"
                   >
-                    <img src={faviconUrl} alt="" className={iconStyle} onError={(e) => (e.currentTarget.style.display = 'none')} />
+                    {iconContent}
                   </motion.a>
                 );
               })
