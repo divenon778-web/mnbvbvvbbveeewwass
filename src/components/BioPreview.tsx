@@ -107,6 +107,43 @@ export default function BioPreview({ profile, username }: BioPreviewProps) {
         )}
       </div>
 
+      {/* Background Effects */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none rounded-[2.5rem]">
+        {profile.backgroundEffect === 'stars' && (
+          <div className="absolute inset-0 opacity-50" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
+        )}
+        {profile.backgroundEffect === 'snow' && (
+          <div className="absolute inset-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] animate-[pulse_10s_linear_infinite]" />
+        )}
+        {profile.backgroundEffect === 'rain' && (
+          <div className="absolute inset-0 opacity-30" style={{ backgroundImage: 'linear-gradient(transparent, rgba(255,255,255,0.2))', backgroundSize: '2px 100px' }} />
+        )}
+        {profile.backgroundEffect === 'particles' && (
+          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
+        )}
+        {profile.backgroundEffect === 'matrix' && (
+          <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/black-scales.png')] animate-pulse" />
+        )}
+        {profile.backgroundEffect === 'bubbles' && (
+          <div className="absolute inset-0 opacity-30 bg-[radial-gradient(circle,_#fff_10%,_transparent_10%)] bg-[size:40px_40px] mix-blend-overlay" />
+        )}
+        {profile.backgroundEffect === 'confetti' && (
+          <div className="absolute inset-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+        )}
+        {profile.backgroundEffect === 'lightning' && (
+          <div className="absolute inset-0 opacity-10 bg-white mix-blend-overlay animate-[pulse_5s_infinite]" />
+        )}
+        {profile.backgroundEffect === 'fireflies' && (
+          <div className="absolute inset-0 opacity-50 bg-[radial-gradient(circle_at_center,_#fff_0%,_transparent_5%)] bg-[size:100px_100px]" />
+        )}
+        {profile.backgroundEffect === 'hyperspace' && (
+          <div className="absolute inset-0 opacity-40" style={{ background: 'conic-gradient(from 90deg, transparent, rgba(255,255,255,0.2), transparent)' }} />
+        )}
+        {profile.backgroundEffect === 'aurora' && (
+          <div className="absolute inset-0 opacity-40 bg-gradient-to-tr from-green-500/20 via-blue-500/20 to-purple-500/20 blur-3xl animate-[spin_20s_linear_infinite]" />
+        )}
+      </div>
+
       {/* Overlay / Main Card Representation */}
       <div 
         className={getMainCardStyle().className}
