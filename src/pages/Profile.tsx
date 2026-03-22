@@ -72,9 +72,10 @@ export default function Profile() {
   // Username effect styles
   const getUsernameStyle = () => {
     switch (profile.usernameEffect) {
-      case 'glow': return 'text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]';
-      case 'gradient': return 'text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500';
-      case 'sparkle': return 'text-yellow-300 drop-shadow-[0_0_5px_rgba(253,224,71,0.8)]';
+      case 'glow': return 'text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-pulse';
+      case 'gradient': return 'text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-red-500 animate-gradient-x';
+      case 'sparkle': return 'text-yellow-300 drop-shadow-[0_0_8px_rgba(253,224,71,0.8)]';
+      case 'glitch': return 'text-white animate-glitch';
       default: return 'text-white';
     }
   };
