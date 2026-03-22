@@ -451,9 +451,9 @@ export default function Profile() {
                       <div className={`p-2 rounded-lg ${item.type === 'template' ? 'bg-purple-500/10 text-purple-500' : 'bg-blue-500/10 text-blue-500'}`}>
                         {item.type === 'template' ? <Layout size={16} /> : <FileText size={16} />}
                       </div>
-                      <div className="flex items-center gap-1 bg-yellow-500/10 px-2 py-0.5 rounded-full">
+                      <div className="flex items-center gap-1 bg-zinc-500/10 px-2 py-0.5 rounded-full">
                         <Coins size={10} className="text-yellow-500" />
-                        <span className="text-[10px] font-bold text-yellow-500">{item.price}</span>
+                        <span className="text-[10px] font-bold text-white">{item.price}</span>
                       </div>
                     </div>
                     <h3 className="text-sm font-bold text-white mb-1">{item.name}</h3>
