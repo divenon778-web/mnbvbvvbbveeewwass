@@ -173,22 +173,23 @@ export default function Profile() {
         <div className="w-full flex flex-col gap-3">
           {profile.links && profile.links.length > 0 ? (
             profile.links.map((link: any, i: number) => {
-              const domain = link.url.replace(/^https?:\/\//, '').split('/')[0];
+              // Ensure URL has a protocol
+              const url = link.url.startsWith('http') ? link.url : `https://${link.url}`;
+              const domain = url.replace(/^https?:\/\//, '').split('/')[0];
               const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
               
               return (
                 <motion.a
                   key={link.id}
-                  href={link.url}
+                  href={url}
                   target="_blank"
                   rel="noopener noreferrer"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 + i * 0.1 }}
-                  className="w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl flex items-center gap-3 text-white text-sm font-medium transition-all hover:scale-[1.02]"
+                  className="w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl flex items-center justify-center gap-3 text-white text-sm font-medium transition-all hover:scale-[1.02]"
                 >
-                  <img src={faviconUrl} alt="" className="w-4 h-4 rounded-sm" onError={(e) => (e.currentTarget.style.display = 'none')} />
-                  {link.title}
+                  <img src={faviconUrl} alt="" className="w-5 h-5 rounded-sm" onError={(e) => (e.currentTarget.style.display = 'none')} />
                 </motion.a>
               );
             })
