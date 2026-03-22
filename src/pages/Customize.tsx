@@ -426,38 +426,58 @@ export default function Customize() {
                       </select>
                     </div>
 
-                    {/* Block Style */}
-                    <div className="flex flex-col gap-3">
-                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Link Block Style</label>
-                      <div className="grid grid-cols-2 gap-4">
-                        <button
-                          onClick={() => setProfile({ ...profile, blockStyle: 'default' })}
-                          className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${profile?.blockStyle === 'default' || !profile?.blockStyle ? 'bg-white/10 border-white/30 text-white' : 'bg-[#0A0A0A] border-white/10 text-zinc-500 hover:border-white/20 hover:text-zinc-300'}`}
+                    {/* Card Customizations */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="flex flex-col gap-3">
+                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Card Shape / 3D</label>
+                        <select 
+                          value={profile?.card3D || 'normal'}
+                          onChange={(e) => setProfile({ ...profile, card3D: e.target.value })}
+                          className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-500/50 transition-colors appearance-none"
                         >
-                          <div className="w-full h-8 rounded-lg border border-white/20 bg-white/5" />
-                          <span className="text-xs font-bold">Standard</span>
-                        </button>
-                        <button
-                          onClick={() => setProfile({ ...profile, blockStyle: 'glass' })}
-                          className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${profile?.blockStyle === 'glass' ? 'bg-white/10 border-white/30 text-white' : 'bg-[#0A0A0A] border-white/10 text-zinc-500 hover:border-white/20 hover:text-zinc-300'}`}
+                          <option value="normal">Normal (Flat)</option>
+                          <option value="3d">3D Perspective</option>
+                        </select>
+                      </div>
+
+                      <div className="flex flex-col gap-3">
+                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Card Drop Shadow</label>
+                        <select 
+                          value={profile?.cardShadow || 'none'}
+                          onChange={(e) => setProfile({ ...profile, cardShadow: e.target.value })}
+                          className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-500/50 transition-colors appearance-none"
                         >
-                          <div className="w-full h-8 rounded-lg border border-white/40 bg-white/10 backdrop-blur-md" />
-                          <span className="text-xs font-bold">Glassmorphism</span>
-                        </button>
-                        <button
-                          onClick={() => setProfile({ ...profile, blockStyle: 'neobrutal' })}
-                          className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${profile?.blockStyle === 'neobrutal' ? 'bg-white/10 border-white/30 text-white' : 'bg-[#0A0A0A] border-white/10 text-zinc-500 hover:border-white/20 hover:text-zinc-300'}`}
+                          <option value="none">None</option>
+                          <option value="soft">Soft Glow</option>
+                          <option value="hard">Hard Drop (Neo-brutal)</option>
+                          <option value="neon">Neon Beam</option>
+                        </select>
+                      </div>
+
+                      <div className="flex flex-col gap-3">
+                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Card Backdrop Blur</label>
+                        <select 
+                          value={profile?.cardBlur || 'opaque'}
+                          onChange={(e) => setProfile({ ...profile, cardBlur: e.target.value })}
+                          className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-500/50 transition-colors appearance-none"
                         >
-                          <div className="w-full h-8 rounded-none border-2 border-white/50 bg-[#0A0A0A]" style={{ boxShadow: '4px 4px 0px rgba(255,255,255,0.3)' }} />
-                          <span className="text-xs font-bold">Neo-Brutal (3D)</span>
-                        </button>
-                        <button
-                          onClick={() => setProfile({ ...profile, blockStyle: 'minimal' })}
-                          className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${profile?.blockStyle === 'minimal' ? 'bg-white/10 border-white/30 text-white' : 'bg-[#0A0A0A] border-white/10 text-zinc-500 hover:border-white/20 hover:text-zinc-300'}`}
+                          <option value="opaque">Opaque (Solid Solid)</option>
+                          <option value="light">Light Blur (Translucent)</option>
+                          <option value="heavy">Heavy Blur (Glassmorphism)</option>
+                        </select>
+                      </div>
+
+                      <div className="flex flex-col gap-3">
+                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Social Icon Style</label>
+                        <select 
+                          value={profile?.socialStyle || 'colored'}
+                          onChange={(e) => setProfile({ ...profile, socialStyle: e.target.value })}
+                          className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-500/50 transition-colors appearance-none"
                         >
-                          <div className="w-full h-8 border-b-2 border-white/20 bg-transparent" />
-                          <span className="text-xs font-bold">Minimal Line</span>
-                        </button>
+                          <option value="colored">Colored</option>
+                          <option value="monochrome">Monochrome</option>
+                          <option value="minimal">Minimal / Transparent</option>
+                        </select>
                       </div>
                     </div>
                   </div>
@@ -496,6 +516,13 @@ export default function Customize() {
                           <option value="sparkle">Sparkle</option>
                           <option value="glitch">Glitch</option>
                           <option value="gradient">Gradient</option>
+                          <option value="neon">Neon Sign</option>
+                          <option value="typing">Typewriter</option>
+                          <option value="wave">Wave</option>
+                          <option value="bounce">Bounce</option>
+                          <option value="float">Float</option>
+                          <option value="3d">3D Shadow</option>
+                          <option value="holo">Holographic</option>
                         </select>
                       </div>
                       <div className="flex flex-col gap-3">
@@ -510,6 +537,13 @@ export default function Customize() {
                           <option value="rain">Rain</option>
                           <option value="stars">Stars</option>
                           <option value="particles">Particles</option>
+                          <option value="matrix">Matrix Code</option>
+                          <option value="bubbles">Bubbles</option>
+                          <option value="confetti">Confetti</option>
+                          <option value="lightning">Lightning</option>
+                          <option value="fireflies">Fireflies</option>
+                          <option value="hyperspace">Hyperspace Speed</option>
+                          <option value="aurora">Aurora Borealis</option>
                         </select>
                       </div>
                     </div>
