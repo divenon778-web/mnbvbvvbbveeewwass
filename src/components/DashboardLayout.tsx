@@ -74,7 +74,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             <div className="mt-auto px-4 flex flex-col gap-2">
               <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-zinc-500/10 border border-zinc-500/20 mb-2">
-                <Coins size={16} className="text-yellow-500" />
+                <Coins size={16} className="text-zinc-500" />
                 <div className="flex flex-col">
                   <span className="text-xs text-zinc-500 uppercase font-bold tracking-tighter">Balance</span>
                   <span className="text-sm font-bold text-white">{userData?.coins || 0} Coins</span>
