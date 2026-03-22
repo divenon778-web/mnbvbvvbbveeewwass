@@ -143,9 +143,9 @@ export default function BioPreview({ profile, username }: BioPreviewProps) {
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: i * 0.1 }}
                 href="#"
-                className="p-1.5 hover:scale-110 transition-transform bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 shrink-0"
+                className="hover:scale-110 transition-transform shrink-0"
               >
-                <img src={faviconUrl} alt="" className="w-6 h-6 rounded-sm opacity-80 hover:opacity-100 transition-opacity" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                <img src={faviconUrl} alt="" className="w-6 h-6 rounded-sm opacity-80 hover:opacity-100 transition-opacity drop-shadow-md" onError={(e) => (e.currentTarget.style.display = 'none')} />
               </motion.a>
             );
           })}
