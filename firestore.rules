@@ -110,5 +110,11 @@ service cloud.firestore {
       allow read: if isOwner(userId);
       allow create, update: if isOwner(userId);
     }
+
+    match /templates/{templateId} {
+      allow read: if isAuthenticated() && request.auth.uid == resource.data.userId;
+      allow create: if isAuthenticated() && request.auth.uid == request.resource.data.userId;
+      allow update, delete: if isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
   }
 }
