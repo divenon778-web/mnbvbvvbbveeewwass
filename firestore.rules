@@ -63,7 +63,9 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isOwner(userId);
       allow create: if isOwner(userId) && hasRequiredFields(['uid', 'username', 'email', 'createdAt']) && isValidUser(request.resource.data) && uidUnchanged();
-      allow update: if isOwner(userId) && isValidUser(request.resource.data) && uidNotModified();
+      allow update: if (isOwner(userId) && isValidUser(request.resource.data) && uidNotModified()) || 
+                       (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['profileViews']) && 
+                        request.resource.data.profileViews == (resource.data.profileViews != null ? resource.data.profileViews : 0) + 1);
     }
     
     match /profiles/{userId} {
