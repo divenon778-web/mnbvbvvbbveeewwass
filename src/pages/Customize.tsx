@@ -5,7 +5,7 @@ import { useAuth } from '../AuthContext';
 import { doc, getDoc, updateDoc, addDoc, collection, serverTimestamp, query, where, getDocs, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import toast from 'react-hot-toast';
-import { X, Upload, Music, ImageIcon, MousePointer2, Cat, Type, Sparkles, Link, Layout, ShoppingBag, Plus, Eye, Save, Trash2, Coins } from 'lucide-react';
+import { X, Upload, Music, ImageIcon, MousePointer2, Cat, Type, Sparkles, Link, Layout, ShoppingBag, Plus, Eye, Save, Trash2, Coins, Palette } from 'lucide-react';
 import BioPreview from '../components/BioPreview';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -14,7 +14,7 @@ export default function Customize() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'general' | 'bio' | 'templates'>('general');
+  const [activeTab, setActiveTab] = useState<'general' | 'design' | 'bio' | 'templates'>('general');
   const [isSellModalOpen, setIsSellModalOpen] = useState(false);
   const [sellPrice, setSellPrice] = useState(100);
   const [sellName, setSellName] = useState('');
@@ -201,6 +201,13 @@ export default function Customize() {
             {activeTab === 'general' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
           </button>
           <button 
+            onClick={() => setActiveTab('design')}
+            className={`pb-4 text-sm font-medium transition-colors relative ${activeTab === 'design' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
+          >
+            Design
+            {activeTab === 'design' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
+          </button>
+          <button 
             onClick={() => setActiveTab('bio')}
             className={`pb-4 text-sm font-medium transition-colors relative ${activeTab === 'bio' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
           >
@@ -360,6 +367,99 @@ export default function Customize() {
                         />
                       </div>
                     )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'design' && (
+              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                <div className="bg-[#111111] border border-white/5 rounded-3xl p-8">
+                  <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
+                    <Palette size={20} className="text-zinc-400" />
+                    Profile Aesthetics
+                  </h3>
+                  
+                  <div className="space-y-8">
+                    {/* Theme Color */}
+                    <div className="flex flex-col gap-3">
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Theme Color (Hex)</label>
+                      <div className="flex gap-4 items-center">
+                        <div 
+                          className="w-10 h-10 rounded-full border border-white/20 shrink-0" 
+                          style={{ backgroundColor: profile?.themeColor || '#ffffff' }}
+                        />
+                        <input 
+                          type="text" 
+                          value={profile?.themeColor || '#ffffff'}
+                          onChange={(e) => setProfile({ ...profile, themeColor: e.target.value })}
+                          placeholder="#FFFFFF"
+                          className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-500/50 transition-colors uppercase"
+                        />
+                      </div>
+                      <div className="flex gap-2 mt-2">
+                        {['#ffffff', '#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'].map(color => (
+                          <button
+                            key={color}
+                            onClick={() => setProfile({ ...profile, themeColor: color })}
+                            className="w-6 h-6 rounded-full border border-white/10 hover:scale-110 transition-transform"
+                            style={{ backgroundColor: color }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Font Family */}
+                    <div className="flex flex-col gap-3">
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Font Style</label>
+                      <select 
+                        value={profile?.font || 'inter'}
+                        onChange={(e) => setProfile({ ...profile, font: e.target.value })}
+                        className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-500/50 transition-colors appearance-none"
+                      >
+                        <option value="inter">Inter (Modern Sans)</option>
+                        <option value="roboto">Roboto (Clean Sans)</option>
+                        <option value="space-grotesk">Space Grotesk (Tech/Edgy)</option>
+                        <option value="playfair">Playfair Display (Elegant Serif)</option>
+                        <option value="comic-neue">Comic Neue (Playful)</option>
+                        <option value="vt323">VT323 (Retro Terminal)</option>
+                      </select>
+                    </div>
+
+                    {/* Block Style */}
+                    <div className="flex flex-col gap-3">
+                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Link Block Style</label>
+                      <div className="grid grid-cols-2 gap-4">
+                        <button
+                          onClick={() => setProfile({ ...profile, blockStyle: 'default' })}
+                          className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${profile?.blockStyle === 'default' || !profile?.blockStyle ? 'bg-white/10 border-white/30 text-white' : 'bg-[#0A0A0A] border-white/10 text-zinc-500 hover:border-white/20 hover:text-zinc-300'}`}
+                        >
+                          <div className="w-full h-8 rounded-lg border border-white/20 bg-white/5" />
+                          <span className="text-xs font-bold">Standard</span>
+                        </button>
+                        <button
+                          onClick={() => setProfile({ ...profile, blockStyle: 'glass' })}
+                          className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${profile?.blockStyle === 'glass' ? 'bg-white/10 border-white/30 text-white' : 'bg-[#0A0A0A] border-white/10 text-zinc-500 hover:border-white/20 hover:text-zinc-300'}`}
+                        >
+                          <div className="w-full h-8 rounded-lg border border-white/40 bg-white/10 backdrop-blur-md" />
+                          <span className="text-xs font-bold">Glassmorphism</span>
+                        </button>
+                        <button
+                          onClick={() => setProfile({ ...profile, blockStyle: 'neobrutal' })}
+                          className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${profile?.blockStyle === 'neobrutal' ? 'bg-white/10 border-white/30 text-white' : 'bg-[#0A0A0A] border-white/10 text-zinc-500 hover:border-white/20 hover:text-zinc-300'}`}
+                        >
+                          <div className="w-full h-8 rounded-none border-2 border-white/50 bg-[#0A0A0A]" style={{ boxShadow: '4px 4px 0px rgba(255,255,255,0.3)' }} />
+                          <span className="text-xs font-bold">Neo-Brutal (3D)</span>
+                        </button>
+                        <button
+                          onClick={() => setProfile({ ...profile, blockStyle: 'minimal' })}
+                          className={`p-4 rounded-xl border flex flex-col items-center gap-2 transition-all ${profile?.blockStyle === 'minimal' ? 'bg-white/10 border-white/30 text-white' : 'bg-[#0A0A0A] border-white/10 text-zinc-500 hover:border-white/20 hover:text-zinc-300'}`}
+                        >
+                          <div className="w-full h-8 border-b-2 border-white/20 bg-transparent" />
+                          <span className="text-xs font-bold">Minimal Line</span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
