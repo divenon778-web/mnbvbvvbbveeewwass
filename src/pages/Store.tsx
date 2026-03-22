@@ -309,7 +309,7 @@ export default function Store() {
       <div className="p-8 flex flex-col text-left">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h2 className="text-2xl font-bold text-white mb-1">You're Store</h2>
+            <h2 className="text-2xl font-bold text-white mb-1">Your Store</h2>
             <p className="text-zinc-500 text-sm">Buy and sell custom bio templates and files.</p>
           </div>
           <div className="flex gap-3">
