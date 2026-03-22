@@ -189,9 +189,31 @@ export default function BioPreview({ profile, username }: BioPreviewProps) {
             const domain = url.replace(/^https?:\/\//, '').split('/')[0];
             const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
             
-            let iconStyle = "w-6 h-6 rounded-sm opacity-80 hover:opacity-100 transition-opacity drop-shadow-md ";
-            if (profile.socialStyle === 'monochrome') iconStyle += "grayscale contrast-125";
-            else if (profile.socialStyle === 'minimal') iconStyle += "grayscale opacity-50 hover:grayscale-0 hover:opacity-100";
+            let iconContent;
+            if (profile.socialStyle === 'custom') {
+              const customColor = profile.socialColor || '#ffffff';
+              iconContent = (
+                <div 
+                  className="w-6 h-6"
+                  style={{
+                    backgroundColor: customColor,
+                    WebkitMaskImage: `url('${faviconUrl}')`,
+                    WebkitMaskSize: 'contain',
+                    WebkitMaskRepeat: 'no-repeat',
+                    WebkitMaskPosition: 'center',
+                    maskImage: `url('${faviconUrl}')`,
+                    maskSize: 'contain',
+                    maskRepeat: 'no-repeat',
+                    maskPosition: 'center',
+                  }}
+                />
+              );
+            } else {
+              let iconStyle = "w-6 h-6 rounded-sm opacity-80 hover:opacity-100 transition-opacity drop-shadow-md ";
+              if (profile.socialStyle === 'monochrome') iconStyle += "grayscale contrast-125";
+              else if (profile.socialStyle === 'minimal') iconStyle += "grayscale opacity-50 hover:grayscale-0 hover:opacity-100";
+              iconContent = <img src={faviconUrl} alt="" className={iconStyle} onError={(e) => (e.currentTarget.style.display = 'none')} />;
+            }
 
             return (
               <motion.a
@@ -202,7 +224,7 @@ export default function BioPreview({ profile, username }: BioPreviewProps) {
                 href="#"
                 className="hover:scale-110 transition-transform shrink-0"
               >
-                <img src={faviconUrl} alt="" className={iconStyle} onError={(e) => (e.currentTarget.style.display = 'none')} />
+                {iconContent}
               </motion.a>
             );
           })}
