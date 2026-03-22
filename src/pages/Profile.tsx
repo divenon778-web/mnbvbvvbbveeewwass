@@ -450,33 +450,9 @@ export default function Profile() {
                 const url = link.url.startsWith('http') ? link.url : `https://${link.url}`;
                 const domain = url.replace(/^https?:\/\//, '').split('/')[0];
                 const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
-                let iconContent;
-                if (profile.socialStyle === 'custom') {
-                  const customColor = profile.socialColor || '#ffffff';
-                  iconContent = (
-                    <div className="w-8 h-8 overflow-hidden rounded-sm inline-block shrink-0">
-                      <img 
-                        src={faviconUrl} 
-                        alt="" 
-                        className="w-full h-full block max-w-none" 
-                        style={{ 
-                          transform: 'translateX(-32px)',
-                          filter: `drop-shadow(32px 0 0 ${customColor})` 
-                        }} 
-                        onError={(e) => {
-                          if (e.currentTarget.parentElement) {
-                            e.currentTarget.parentElement.style.display = 'none';
-                          }
-                        }} 
-                      />
-                    </div>
-                  );
-                } else {
-                  let iconStyle = "w-8 h-8 rounded-sm shrink-0 ";
-                  if (profile.socialStyle === 'monochrome') iconStyle += "grayscale contrast-125";
-                  else if (profile.socialStyle === 'minimal') iconStyle += "grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all";
-                  iconContent = <img src={faviconUrl} alt="" className={iconStyle} onError={(e) => (e.currentTarget.style.display = 'none')} />;
-                }
+                let iconStyle = "w-8 h-8 rounded-sm ";
+                if (profile.socialStyle === 'monochrome') iconStyle += "grayscale contrast-125";
+                else if (profile.socialStyle === 'minimal') iconStyle += "grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all";
 
                 return (
                   <motion.a
@@ -489,7 +465,7 @@ export default function Profile() {
                     transition={{ delay: 0.6 + i * 0.1 }}
                     className="hover:scale-110 transition-transform drop-shadow-md"
                   >
-                    {iconContent}
+                    <img src={faviconUrl} alt="" className={iconStyle} onError={(e) => (e.currentTarget.style.display = 'none')} />
                   </motion.a>
                 );
               })
