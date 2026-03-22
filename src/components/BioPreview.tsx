@@ -62,7 +62,7 @@ export default function BioPreview({ profile, username }: BioPreviewProps) {
         {/* Username */}
         <h1 className={`text-xl font-bold text-white mb-2 tracking-tight ${
           profile.usernameEffect === 'glow' ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' :
-          profile.usernameEffect === 'gradient' ? 'bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent' : ''
+          profile.usernameEffect === 'gradient' ? 'bg-gradient-to-r from-zinc-400 to-zinc-600 bg-clip-text text-transparent' : ''
         }`}>
           @{username}
         </h1>
@@ -96,7 +96,7 @@ export default function BioPreview({ profile, username }: BioPreviewProps) {
 
         {/* Music Player (Static Preview) */}
         <div className="w-full bg-white/5 border border-white/10 rounded-2xl p-3 flex items-center gap-3">
-          <div className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center text-emerald-400">
+          <div className="w-8 h-8 bg-zinc-500/20 rounded-lg flex items-center justify-center text-zinc-400">
             <Music size={14} />
           </div>
           <div className="flex-1 text-left">
