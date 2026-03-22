@@ -10,8 +10,62 @@ interface BioPreviewProps {
 export default function BioPreview({ profile, username }: BioPreviewProps) {
   if (!profile) return null;
 
+  const themeColor = profile.themeColor || '#ffffff';
+
+  const getFontFamily = () => {
+    switch (profile.font) {
+      case 'roboto': return "'Roboto', sans-serif";
+      case 'space-grotesk': return "'Space Grotesk', sans-serif";
+      case 'playfair': return "'Playfair Display', serif";
+      case 'comic-neue': return "'Comic Neue', cursive";
+      case 'vt323': return "'VT323', monospace";
+      case 'inter':
+      default: return "'Inter', sans-serif";
+    }
+  };
+
+  const getBlockStyles = () => {
+    switch (profile.blockStyle) {
+      case 'glass':
+        return {
+          className: "flex items-center justify-between w-full px-4 py-2.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-[10px] font-medium text-white hover:bg-white/20 transition-all group",
+          style: {}
+        };
+      case 'neobrutal':
+        return {
+          className: "flex items-center justify-between w-full px-4 py-2.5 bg-[#0A0A0A] border-2 rounded-none text-[10px] font-bold text-white transition-all hover:translate-x-1 hover:translate-y-1 group",
+          style: { 
+            borderColor: themeColor, 
+            boxShadow: `4px 4px 0px ${themeColor}`,
+          }
+        };
+      case 'minimal':
+        return {
+          className: "flex items-center justify-between w-full px-4 py-2.5 bg-transparent border-b-2 rounded-none text-[10px] font-medium text-white hover:bg-white/5 transition-all group",
+          style: { borderColor: themeColor }
+        };
+      case 'default':
+      default:
+        return {
+          className: "flex items-center justify-between w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-medium text-white hover:bg-white/10 transition-all group",
+          style: {}
+        };
+    }
+  };
+
   return (
-    <div className="relative w-full aspect-[9/16] max-w-[320px] bg-black rounded-[2.5rem] overflow-hidden border-[8px] border-[#1a1a1a] shadow-2xl mx-auto">
+    <div 
+      className="relative w-full aspect-[9/16] max-w-[320px] bg-black rounded-[2.5rem] overflow-hidden border-[8px] border-[#1a1a1a] shadow-2xl mx-auto"
+      style={{ fontFamily: getFontFamily() }}
+    >
+      <style>
+        {`@import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Inter:wght@400;700&family=Playfair+Display:wght@400;700&family=Roboto:wght@400;700&family=Space+Grotesk:wght@400;700&family=VT323&display=swap');
+          
+          .neobrutal-hover:hover {
+            box-shadow: 0px 0px 0px ${themeColor} !important;
+          }
+        `}
+      </style>
       {/* Background */}
       <div className="absolute inset-0 z-0">
         {profile.backgroundUrl ? (
@@ -60,10 +114,13 @@ export default function BioPreview({ profile, username }: BioPreviewProps) {
         </motion.div>
 
         {/* Username */}
-        <h1 className={`text-xl font-bold text-white mb-2 tracking-tight ${
-          profile.usernameEffect === 'glow' ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' :
-          profile.usernameEffect === 'gradient' ? 'bg-gradient-to-r from-zinc-400 to-zinc-600 bg-clip-text text-transparent' : ''
-        }`}>
+        <h1 
+          className={`text-xl font-bold mb-2 tracking-tight ${
+            profile.usernameEffect === 'glow' ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' :
+            profile.usernameEffect === 'gradient' ? 'bg-gradient-to-r from-zinc-400 to-zinc-600 bg-clip-text text-transparent' : ''
+          }`}
+          style={{ color: profile.usernameEffect === 'gradient' ? undefined : themeColor }}
+        >
           @{username}
         </h1>
 
@@ -74,19 +131,23 @@ export default function BioPreview({ profile, username }: BioPreviewProps) {
 
         {/* Links */}
         <div className="w-full space-y-2 mb-6 max-h-[160px] overflow-y-auto pr-1 custom-scrollbar">
-          {profile.links?.map((link: any, i: number) => (
-            <motion.a
-              key={link.id || i}
-              initial={{ x: -20, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: i * 0.1 }}
-              href="#"
-              className="flex items-center justify-between w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-medium text-white hover:bg-white/10 transition-all group"
-            >
-              <span>{link.title || "Link"}</span>
-              <ExternalLink size={10} className="text-zinc-500 group-hover:text-white transition-colors" />
-            </motion.a>
-          ))}
+          {profile.links?.map((link: any, i: number) => {
+            const blockStyleProps = getBlockStyles();
+            return (
+              <motion.a
+                key={link.id || i}
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                transition={{ delay: i * 0.1 }}
+                href="#"
+                className={`${blockStyleProps.className} ${profile.blockStyle === 'neobrutal' ? 'neobrutal-hover' : ''}`}
+                style={blockStyleProps.style}
+              >
+                <span>{link.title || "Link"}</span>
+                <ExternalLink size={10} className="text-zinc-500 group-hover:text-white transition-colors" />
+              </motion.a>
+            );
+          })}
           {(!profile.links || profile.links.length === 0) && (
             <div className="py-4 border border-dashed border-white/10 rounded-xl text-[10px] text-zinc-500">
               No links added
