@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { collection, query, where, getDocs, updateDoc, doc, increment } from 'firebase/firestore';
 import { db } from '../firebase';
 import { motion } from 'framer-motion';
-import { Eye, Crown, Wrench, Play, Pause } from 'lucide-react';
+import { Eye, Play, Pause } from 'lucide-react';
 
 export default function Profile() {
   const { username } = useParams<{ username: string }>();
@@ -139,17 +139,6 @@ export default function Profile() {
         >
           {profile.displayName || profile.username}
         </motion.h1>
-
-        {/* Badges */}
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
-          className="flex gap-2 mb-6 bg-white/5 px-3 py-1.5 rounded-full border border-white/10"
-        >
-          <Crown size={14} className="text-yellow-400" />
-          <Wrench size={14} className="text-zinc-400" />
-        </motion.div>
 
         {/* Bio */}
         {profile.bio && (
