@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ShoppingBag, Plus, Tag, FileText, Layout, Download, Coins, Search, Filter, Trash2, CheckCircle2, Eye, EyeOff } from 'lucide-react';
-import { handleFirestoreError, OperationType } from '../utils/dbErrorHandler';
+import { handleFirestoreError, OperationType } from '../firebase';
 import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../AuthContext';
 import { db } from '../firebase';
