@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { User, ChevronDown, Palette, LogOut } from 'lucide-react';
+import { User, ChevronDown, Palette, LogOut, ShoppingBag, Coins } from 'lucide-react';
 import { useAuth } from '../AuthContext';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
@@ -55,9 +55,31 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   <span className="text-xs text-zinc-500 hover:text-zinc-300 cursor-pointer transition-colors">Links</span>
                 </div>
               )}
+
+              <Link to="/dashboard/store" className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors mt-2 ${location.pathname === '/dashboard/store' ? 'bg-zinc-500/10 text-white border border-zinc-500/20' : 'text-zinc-400 hover:bg-white/5'}`}>
+                <div className="flex items-center gap-3">
+                  <ShoppingBag size={16} />
+                  <span className="text-sm font-medium">You're Store</span>
+                </div>
+                <ChevronDown size={16} className="text-zinc-500" />
+              </Link>
+              {location.pathname === '/dashboard/store' && (
+                <div className="flex flex-col pl-10 pr-3 py-1 gap-2">
+                  <span className="text-xs text-zinc-400 cursor-pointer">Marketplace</span>
+                  <span className="text-xs text-zinc-500 hover:text-zinc-300 cursor-pointer transition-colors">My Items</span>
+                  <span className="text-xs text-zinc-500 hover:text-zinc-300 cursor-pointer transition-colors">Purchases</span>
+                </div>
+              )}
             </div>
 
             <div className="mt-auto px-4 flex flex-col gap-2">
+              <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-yellow-500/10 border border-yellow-500/20 mb-2">
+                <Coins size={16} className="text-yellow-500" />
+                <div className="flex flex-col">
+                  <span className="text-xs text-zinc-500 uppercase font-bold tracking-tighter">Balance</span>
+                  <span className="text-sm font-bold text-white">{userData?.coins || 0} Coins</span>
+                </div>
+              </div>
               <Link to={`/${userData?.username}`} className="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-400 hover:text-white hover:bg-white/5 cursor-pointer transition-colors text-sm font-medium">
                 <User size={16} />
                 View Profile
