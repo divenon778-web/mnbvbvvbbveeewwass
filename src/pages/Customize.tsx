@@ -493,7 +493,7 @@ export default function Customize() {
                       </div>
                       <div className="text-center">
                         <span className="block text-white font-bold mb-1">Save Current</span>
-                        <span className="text-xs text-zinc-500">Save as a private template</span>
+                        <span className="text-xs text-zinc-500">Save to Downloaded Templates</span>
                       </div>
                     </button>
 
