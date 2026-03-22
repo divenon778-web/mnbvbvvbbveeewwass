@@ -325,6 +325,23 @@ export default function Store() {
     }
   };
 
+  const handleDownloadTemplate = async (item: StoreItem) => {
+    if (!user) return;
+    try {
+      await addDoc(collection(db, 'templates'), {
+        userId: user.uid,
+        name: item.name,
+        data: item.templateData || {},
+        createdAt: serverTimestamp(),
+        sourceItem: item.id
+      });
+      toast.success('Template downloaded to Customize tab!');
+    } catch (error) {
+      console.error("Error downloading template:", error);
+      toast.error('Failed to download template');
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="p-8 flex flex-col text-left">
@@ -451,13 +468,20 @@ export default function Store() {
                   {activeTab === 'marketplace' ? (
                     <button 
                       onClick={() => handlePurchase(item)}
-                      disabled={item.sellerId === user?.uid}
-                      className="px-4 py-2 bg-white text-black rounded-xl text-xs font-bold hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={item.sellerId === user?.uid || purchasedItems.some(p => p.id === item.id)}
+                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                        purchasedItems.some(p => p.id === item.id)
+                          ? 'bg-zinc-800 text-zinc-400'
+                          : 'bg-white text-black hover:bg-zinc-200'
+                      }`}
                     >
-                      Buy Now
+                      {purchasedItems.some(p => p.id === item.id) ? 'Purchased' : 'Buy Now'}
                     </button>
                   ) : activeTab === 'purchases' ? (
-                    <button className="flex items-center gap-2 px-4 py-2 bg-zinc-800 text-white rounded-xl text-xs font-bold hover:bg-zinc-700 transition-colors">
+                    <button 
+                      onClick={() => handleDownloadTemplate(item)}
+                      className="flex items-center gap-2 px-4 py-2 bg-zinc-800 text-white rounded-xl text-xs font-bold hover:bg-zinc-700 transition-colors"
+                    >
                       <Download size={14} />
                       Download
                     </button>
