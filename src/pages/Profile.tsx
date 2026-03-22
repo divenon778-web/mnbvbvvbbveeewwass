@@ -1,14 +1,32 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { collection, query, where, getDocs, updateDoc, doc, increment } from 'firebase/firestore';
+import { collection, query, where, getDocs, updateDoc, doc, increment, addDoc, serverTimestamp, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
+import { useAuth } from '../AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, Play, Pause } from 'lucide-react';
+import { Eye, Play, Pause, ShoppingBag, Coins, Download, X, Layout, FileText } from 'lucide-react';
+import toast from 'react-hot-toast';
+
+interface StoreItem {
+  id: string;
+  sellerId: string;
+  sellerUsername: string;
+  name: string;
+  description: string;
+  price: number;
+  type: 'file' | 'template';
+  fileUrl?: string;
+  templateData?: any;
+  createdAt: any;
+  sales: number;
+}
 
 export default function Profile() {
   const { username } = useParams<{ username: string }>();
+  const { user, userData, refreshUserData } = useAuth();
   const [profile, setProfile] = useState<any>(null);
-  const [userDoc, setUserDoc] = useState<any>(null);
+  const [profileId, setProfileId] = useState<string>('');
+  const [storeItems, setStoreItems] = useState<StoreItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
@@ -17,6 +35,7 @@ export default function Profile() {
   const [isHovering, setIsHovering] = useState(false);
   const [volume, setVolume] = useState(0.5);
   const [isVolumeVisible, setIsVolumeVisible] = useState(false);
+  const [isStoreOpen, setIsStoreOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -31,7 +50,6 @@ export default function Profile() {
     const fetchProfile = async () => {
       if (!username) return;
       try {
-        // Find profile by username
         const q = query(collection(db, 'profiles'), where('username', '==', username.toLowerCase()));
         const querySnapshot = await getDocs(q);
         
@@ -44,11 +62,20 @@ export default function Profile() {
         const profileDoc = querySnapshot.docs[0];
         const profileData = profileDoc.data();
         setProfile(profileData);
+        setProfileId(profileDoc.id);
 
-        // Increment views on profile doc
+        // Increment views
         await updateDoc(profileDoc.ref, {
           profileViews: increment(1)
         });
+
+        // Fetch store items if enabled
+        if (profileData.showStoreOnBio) {
+          const itemsQ = query(collection(db, 'store_items'), where('sellerId', '==', profileDoc.id));
+          const itemsSnapshot = await getDocs(itemsQ);
+          const itemsData = itemsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as StoreItem));
+          setStoreItems(itemsData);
+        }
 
       } catch (err) {
         console.error("Error fetching profile:", err);
@@ -61,7 +88,46 @@ export default function Profile() {
     fetchProfile();
   }, [username]);
 
-  // Handle audio play after entry
+  const handlePurchase = async (item: StoreItem) => {
+    if (!user || !userData) {
+      toast.error('Please login to purchase');
+      return;
+    }
+
+    if (userData.coins < item.price) {
+      toast.error('Insufficient coins!');
+      return;
+    }
+
+    if (item.sellerId === user.uid) {
+      toast.error('You cannot buy your own item');
+      return;
+    }
+
+    try {
+      await updateDoc(doc(db, 'users', user.uid), { coins: increment(-item.price) });
+      await updateDoc(doc(db, 'users', item.sellerId), { coins: increment(item.price) });
+      await addDoc(collection(db, 'transactions'), {
+        buyerId: user.uid,
+        sellerId: item.sellerId,
+        itemId: item.id,
+        amount: item.price,
+        timestamp: serverTimestamp()
+      });
+      await setDoc(doc(db, `purchased_items/${user.uid}/items`, item.id), {
+        itemId: item.id,
+        purchasedAt: serverTimestamp()
+      });
+      await updateDoc(doc(db, 'store_items', item.id), { sales: increment(1) });
+
+      toast.success(`Purchased ${item.name}!`);
+      refreshUserData();
+    } catch (error) {
+      console.error("Error during purchase:", error);
+      toast.error('Purchase failed');
+    }
+  };
+
   useEffect(() => {
     if (hasEntered && profile?.audioUrl && audioRef.current) {
       audioRef.current.volume = volume;
@@ -71,7 +137,6 @@ export default function Profile() {
     }
   }, [hasEntered, profile?.audioUrl]);
 
-  // Update volume when state changes
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume;
@@ -93,7 +158,6 @@ export default function Profile() {
   if (error) return <div className="min-h-screen bg-black flex items-center justify-center text-white">{error}</div>;
   if (!profile) return null;
 
-  // Username effect styles
   const getUsernameStyle = () => {
     switch (profile.usernameEffect) {
       case 'glow': return 'text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.8)] animate-pulse';
@@ -178,7 +242,7 @@ export default function Profile() {
           )}
         </div>
 
-        {/* Background Effects (Mockup for stars/snow) */}
+        {/* Background Effects */}
         {profile.backgroundEffect === 'stars' && (
           <div className="absolute inset-0 z-0 opacity-50" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
         )}
@@ -235,7 +299,6 @@ export default function Profile() {
           <div className="w-full flex flex-wrap justify-center gap-4 mb-8">
             {profile.links && profile.links.length > 0 ? (
               profile.links.map((link: any, i: number) => {
-                // Ensure URL has a protocol
                 const url = link.url.startsWith('http') ? link.url : `https://${link.url}`;
                 const domain = url.replace(/^https?:\/\//, '').split('/')[0];
                 const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
@@ -259,6 +322,19 @@ export default function Profile() {
               })
             ) : null}
           </div>
+
+          {/* Store Button */}
+          {profile.showStoreOnBio && storeItems.length > 0 && (
+            <button 
+              onClick={() => setIsStoreOpen(true)}
+              onMouseEnter={() => setIsHovering(true)}
+              onMouseLeave={() => setIsHovering(false)}
+              className="flex items-center gap-2 px-6 py-2 bg-white/5 border border-white/10 rounded-xl text-xs font-bold text-white hover:bg-white/10 transition-all mb-4"
+            >
+              <ShoppingBag size={14} />
+              Visit Store
+            </button>
+          )}
 
           {/* Views Counter */}
           <div className="absolute bottom-4 left-4 flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10">
@@ -337,6 +413,65 @@ export default function Profile() {
           N
         </div>
       </motion.div>
+
+      {/* Store Modal */}
+      <AnimatePresence>
+        {isStoreOpen && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsStoreOpen(false)}
+              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="relative z-10 w-full max-w-2xl bg-[#0A0A0A] border border-white/10 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[80vh]"
+            >
+              <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                <div className="flex items-center gap-3">
+                  <ShoppingBag size={20} className="text-emerald-400" />
+                  <h2 className="text-xl font-bold text-white">@{profile.username}'s Store</h2>
+                </div>
+                <button 
+                  onClick={() => setIsStoreOpen(false)}
+                  className="p-2 hover:bg-white/5 rounded-full transition-colors text-zinc-500 hover:text-white"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-4 custom-scrollbar">
+                {storeItems.map((item) => (
+                  <div key={item.id} className="bg-white/5 border border-white/5 rounded-2xl p-4 flex flex-col hover:border-white/10 transition-colors">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className={`p-2 rounded-lg ${item.type === 'template' ? 'bg-purple-500/10 text-purple-500' : 'bg-blue-500/10 text-blue-500'}`}>
+                        {item.type === 'template' ? <Layout size={16} /> : <FileText size={16} />}
+                      </div>
+                      <div className="flex items-center gap-1 bg-yellow-500/10 px-2 py-0.5 rounded-full">
+                        <Coins size={10} className="text-yellow-500" />
+                        <span className="text-[10px] font-bold text-yellow-500">{item.price}</span>
+                      </div>
+                    </div>
+                    <h3 className="text-sm font-bold text-white mb-1">{item.name}</h3>
+                    <p className="text-[10px] text-zinc-500 mb-4 line-clamp-2">{item.description}</p>
+                    <button 
+                      onClick={() => handlePurchase(item)}
+                      disabled={item.sellerId === user?.uid}
+                      className="mt-auto w-full py-2 bg-white text-black rounded-xl text-[10px] font-bold hover:bg-zinc-200 transition-colors disabled:opacity-50"
+                    >
+                      Buy Now
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
