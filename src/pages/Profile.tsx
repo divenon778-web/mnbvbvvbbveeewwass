@@ -71,9 +71,14 @@ export default function Profile() {
 
         // Fetch store items if enabled
         if (profileData.showStoreOnBio) {
-          const itemsQ = query(collection(db, 'store_items'), where('sellerId', '==', profileDoc.id));
+          const itemsQ = query(
+            collection(db, 'store_items'), 
+            where('sellerId', '==', profileDoc.id)
+          );
           const itemsSnapshot = await getDocs(itemsQ);
-          const itemsData = itemsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as StoreItem));
+          const itemsData = itemsSnapshot.docs
+            .map(doc => ({ id: doc.id, ...doc.data() } as StoreItem))
+            .filter(item => (item as any).active !== false && (item as any).showOnBio !== false);
           setStoreItems(itemsData);
         }
 
