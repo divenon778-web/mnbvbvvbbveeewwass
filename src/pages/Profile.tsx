@@ -457,7 +457,7 @@ export default function Profile() {
                         {item.type === 'template' ? <Layout size={16} /> : <FileText size={16} />}
                       </div>
                       <div className="flex items-center gap-1 bg-zinc-500/10 px-2 py-0.5 rounded-full">
-                        <Coins size={10} className="text-yellow-500" />
+                        <Coins size={10} className="text-zinc-500" />
                         <span className="text-[10px] font-bold text-white">{item.price}</span>
                       </div>
                     </div>
