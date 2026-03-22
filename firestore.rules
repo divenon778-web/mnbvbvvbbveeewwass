@@ -106,6 +106,12 @@ service cloud.firestore {
       allow create: if isAuthenticated() && request.auth.uid == request.resource.data.buyerId;
     }
 
+    match /profile_views/{viewId} {
+      allow read: if isAuthenticated() && request.auth.uid == resource.data.profileId;
+      allow create: if request.resource.data.profileId is string && 
+                      request.resource.data.timestamp is timestamp;
+    }
+
     match /purchased_items/{userId}/items/{itemId} {
       allow read: if isOwner(userId);
       allow create, update: if isOwner(userId);
