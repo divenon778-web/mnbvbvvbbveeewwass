@@ -15,6 +15,8 @@ export default function Profile() {
   const [hasEntered, setHasEntered] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
+  const [volume, setVolume] = useState(0.5);
+  const [isVolumeVisible, setIsVolumeVisible] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -62,11 +64,19 @@ export default function Profile() {
   // Handle audio play after entry
   useEffect(() => {
     if (hasEntered && profile?.audioUrl && audioRef.current) {
+      audioRef.current.volume = volume;
       audioRef.current.play()
         .then(() => setIsPlaying(true))
         .catch(e => console.error("Playback failed:", e));
     }
   }, [hasEntered, profile?.audioUrl]);
+
+  // Update volume when state changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
 
   const toggleAudio = () => {
     if (audioRef.current) {
@@ -258,16 +268,56 @@ export default function Profile() {
 
         </motion.div>
 
-        {/* Audio Toggle */}
+        {/* Audio Controls */}
         {profile.audioUrl && (
-          <button 
-            onClick={toggleAudio}
-            onMouseEnter={() => setIsHovering(true)}
-            onMouseLeave={() => setIsHovering(false)}
-            className="absolute bottom-6 right-6 z-20 w-10 h-10 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+          <div 
+            className="absolute bottom-6 right-6 z-20 flex flex-col items-center gap-3"
+            onMouseEnter={() => {
+              setIsVolumeVisible(true);
+              setIsHovering(true);
+            }}
+            onMouseLeave={() => {
+              setIsVolumeVisible(false);
+              setIsHovering(false);
+            }}
           >
-            {isPlaying ? <Pause size={16} /> : <Play size={16} />}
-          </button>
+            <AnimatePresence>
+              {isVolumeVisible && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10, scale: 0.8 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 10, scale: 0.8 }}
+                  className="bg-black/60 backdrop-blur-md border border-white/10 p-3 rounded-2xl flex flex-col items-center gap-2 shadow-xl"
+                >
+                  <div className="h-24 w-1.5 bg-white/10 rounded-full relative overflow-hidden">
+                    <motion.div 
+                      className="absolute bottom-0 left-0 right-0 bg-white"
+                      style={{ height: `${volume * 100}%` }}
+                    />
+                    <input
+                      type="range"
+                      min="0"
+                      max="1"
+                      step="0.01"
+                      value={volume}
+                      onChange={(e) => setVolume(parseFloat(e.target.value))}
+                      className="absolute inset-0 opacity-0 cursor-none w-full h-full [writing-mode:bt-lr] appearance-slider-vertical"
+                    />
+                  </div>
+                  <span className="text-[10px] font-medium text-white/60 tabular-nums">
+                    {Math.round(volume * 100)}%
+                  </span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            <button 
+              onClick={toggleAudio}
+              className="w-10 h-10 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors shadow-lg"
+            >
+              {isPlaying ? <Pause size={16} /> : <Play size={16} />}
+            </button>
+          </div>
         )}
 
         {/* Custom Pet */}
