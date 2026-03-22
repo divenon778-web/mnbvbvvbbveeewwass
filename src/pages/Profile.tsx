@@ -433,7 +433,7 @@ export default function Profile() {
             >
               <div className="p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                 <div className="flex items-center gap-3">
-                  <ShoppingBag size={20} className="text-emerald-400" />
+                  <ShoppingBag size={20} className="text-zinc-400" />
                   <h2 className="text-xl font-bold text-white">@{profile.username}'s Store</h2>
                 </div>
                 <button 
