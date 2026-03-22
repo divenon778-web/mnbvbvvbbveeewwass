@@ -14,6 +14,7 @@ export default function Profile() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasEntered, setHasEntered] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [isHovering, setIsHovering] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -95,20 +96,28 @@ export default function Profile() {
 
   return (
     <div 
-      className={`min-h-screen relative flex items-center justify-center overflow-hidden bg-black ${profile.cursorUrl ? 'cursor-none' : ''}`}
+      className={`min-h-screen relative flex items-center justify-center overflow-hidden bg-black ${profile.cursorUrl ? '[&_*]:cursor-none cursor-none' : ''}`}
     >
       {/* Custom Cursor Follower */}
       {profile.cursorUrl && (
         <motion.div
           className="fixed top-0 left-0 z-[9999] pointer-events-none flex items-center justify-center"
-          animate={{ x: mousePos.x, y: mousePos.y }}
-          transition={{ type: 'tween', ease: 'linear', duration: 0 }}
+          animate={{ 
+            x: mousePos.x, 
+            y: mousePos.y,
+            scale: isHovering ? 1.2 : 1
+          }}
+          transition={{ 
+            x: { type: 'tween', ease: 'linear', duration: 0 },
+            y: { type: 'tween', ease: 'linear', duration: 0 },
+            scale: { type: 'spring', stiffness: 300, damping: 20 }
+          }}
           style={{ translateX: '-50%', translateY: '-50%' }}
         >
           <img 
             src={profile.cursorUrl} 
             alt="" 
-            className="max-w-[48px] max-h-[48px] object-contain"
+            className="w-8 h-8 object-contain"
             onError={(e) => (e.currentTarget.style.display = 'none')}
           />
         </motion.div>
@@ -121,6 +130,8 @@ export default function Profile() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setHasEntered(true)}
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
             className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-black/60 backdrop-blur-2xl cursor-pointer group"
           >
             <motion.div
@@ -228,6 +239,8 @@ export default function Profile() {
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.6 + i * 0.1 }}
+                    onMouseEnter={() => setIsHovering(true)}
+                    onMouseLeave={() => setIsHovering(false)}
                     className="p-2 hover:scale-110 transition-transform"
                   >
                     <img src={faviconUrl} alt="" className="w-8 h-8 rounded-sm" onError={(e) => (e.currentTarget.style.display = 'none')} />
@@ -249,6 +262,8 @@ export default function Profile() {
         {profile.audioUrl && (
           <button 
             onClick={toggleAudio}
+            onMouseEnter={() => setIsHovering(true)}
+            onMouseLeave={() => setIsHovering(false)}
             className="absolute bottom-6 right-6 z-20 w-10 h-10 bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors"
           >
             {isPlaying ? <Pause size={16} /> : <Play size={16} />}
