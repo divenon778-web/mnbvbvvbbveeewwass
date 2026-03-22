@@ -29,6 +29,7 @@ export default function Store() {
   const [purchasedItems, setPurchasedItems] = useState<StoreItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSellModalOpen, setIsSellModalOpen] = useState(false);
+  const [cooldownTime, setCooldownTime] = useState<string | null>(null);
   
   // Sell Form State
   const [newItem, setNewItem] = useState({
@@ -45,6 +46,39 @@ export default function Store() {
     fetchMyItems();
     fetchPurchases();
   }, [user]);
+
+  useEffect(() => {
+    if (userData?.lastClaimedAt) {
+      const lastClaimed = userData.lastClaimedAt.toDate ? userData.lastClaimedAt.toDate() : new Date(userData.lastClaimedAt);
+      const now = new Date();
+      const diff = now.getTime() - lastClaimed.getTime();
+      const twentyFourHours = 24 * 60 * 60 * 1000;
+
+      if (diff < twentyFourHours) {
+        const remaining = twentyFourHours - diff;
+        const hours = Math.floor(remaining / (1000 * 60 * 60));
+        const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+        setCooldownTime(`${hours}h ${minutes}m`);
+
+        const timer = setInterval(() => {
+          const newNow = new Date();
+          const newDiff = newNow.getTime() - lastClaimed.getTime();
+          if (newDiff >= twentyFourHours) {
+            setCooldownTime(null);
+            clearInterval(timer);
+          } else {
+            const newRemaining = twentyFourHours - newDiff;
+            const newHours = Math.floor(newRemaining / (1000 * 60 * 60));
+            const newMinutes = Math.floor((newRemaining % (1000 * 60 * 60)) / (1000 * 60));
+            setCooldownTime(`${newHours}h ${newMinutes}m`);
+          }
+        }, 60000);
+        return () => clearInterval(timer);
+      } else {
+        setCooldownTime(null);
+      }
+    }
+  }, [userData?.lastClaimedAt]);
 
   const fetchMarketplace = async () => {
     try {
@@ -176,10 +210,24 @@ export default function Store() {
   };
 
   const claimDailyCoins = async () => {
-    if (!user) return;
+    if (!user || !userData) return;
+    
+    if (userData.lastClaimedAt) {
+      const lastClaimed = userData.lastClaimedAt.toDate ? userData.lastClaimedAt.toDate() : new Date(userData.lastClaimedAt);
+      const now = new Date();
+      const diff = now.getTime() - lastClaimed.getTime();
+      const twentyFourHours = 24 * 60 * 60 * 1000;
+
+      if (diff < twentyFourHours) {
+        toast.error('You must wait 24 hours between claims!');
+        return;
+      }
+    }
+
     try {
       await updateDoc(doc(db, 'users', user.uid), {
-        coins: increment(100)
+        coins: increment(100),
+        lastClaimedAt: serverTimestamp()
       });
       toast.success('Claimed 100 daily coins!');
       refreshUserData();
@@ -199,10 +247,11 @@ export default function Store() {
           <div className="flex gap-3">
             <button 
               onClick={claimDailyCoins}
-              className="flex items-center gap-2 px-4 py-2 bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-yellow-500 text-sm font-medium hover:bg-yellow-500/20 transition-colors"
+              disabled={!!cooldownTime}
+              className={`flex items-center gap-2 px-4 py-2 border rounded-xl text-sm font-medium transition-colors ${cooldownTime ? 'bg-zinc-500/10 border-zinc-500/20 text-zinc-500 cursor-not-allowed' : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500 hover:bg-yellow-500/20'}`}
             >
               <Coins size={16} />
-              Claim Daily Coins
+              {cooldownTime ? `Claim in ${cooldownTime}` : 'Claim Daily Coins'}
             </button>
             <button 
               onClick={() => setIsSellModalOpen(true)}
