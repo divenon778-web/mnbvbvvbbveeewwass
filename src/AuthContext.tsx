@@ -23,12 +23,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(currentUser);
       if (currentUser) {
         try {
-          const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+          const [userDoc, profileDoc] = await Promise.all([
+            getDoc(doc(db, 'users', currentUser.uid)),
+            getDoc(doc(db, 'profiles', currentUser.uid))
+          ]);
+          
+          let combinedData = {};
           if (userDoc.exists()) {
-            setUserData(userDoc.data());
-          } else {
-            setUserData(null);
+            combinedData = { ...combinedData, ...userDoc.data() };
           }
+          if (profileDoc.exists()) {
+            combinedData = { ...combinedData, ...profileDoc.data() };
+          }
+          
+          setUserData(Object.keys(combinedData).length > 0 ? combinedData : null);
         } catch (error) {
           console.error("Error fetching user data:", error);
         }
