@@ -170,7 +170,7 @@ export default function Customize() {
           <div className="flex gap-3">
             <button 
               onClick={() => setIsSellModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-purple-500/10 text-purple-400 border border-purple-500/20 rounded-xl text-sm font-medium hover:bg-purple-500/20 transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 rounded-xl text-sm font-medium hover:bg-zinc-500/20 transition-colors"
             >
               <ShoppingBag size={16} />
               Sell as Template
@@ -499,9 +499,9 @@ export default function Customize() {
 
                     <button 
                       onClick={() => setIsSellModalOpen(true)}
-                      className="flex flex-col items-center justify-center gap-4 p-8 bg-purple-500/5 border border-purple-500/10 rounded-3xl hover:bg-purple-500/10 hover:border-purple-500/20 transition-all group"
+                      className="flex flex-col items-center justify-center gap-4 p-8 bg-zinc-500/5 border border-zinc-500/10 rounded-3xl hover:bg-zinc-500/10 hover:border-zinc-500/20 transition-all group"
                     >
-                      <div className="p-4 bg-purple-500/10 rounded-2xl text-purple-400 group-hover:scale-110 transition-transform">
+                      <div className="p-4 bg-zinc-500/10 rounded-2xl text-zinc-400 group-hover:scale-110 transition-transform">
                         <ShoppingBag size={32} />
                       </div>
                       <div className="text-center">
@@ -613,8 +613,8 @@ export default function Customize() {
                     </div>
                   </div>
 
-                  <div className="p-4 bg-purple-500/5 border border-purple-500/10 rounded-2xl">
-                    <p className="text-[10px] text-purple-400 leading-relaxed">
+                  <div className="p-4 bg-zinc-500/5 border border-zinc-500/10 rounded-2xl">
+                    <p className="text-[10px] text-zinc-400 leading-relaxed">
                       By listing this template, other users will be able to purchase it and apply it to their own profiles. You will receive the full coin amount for every sale.
                     </p>
                   </div>
