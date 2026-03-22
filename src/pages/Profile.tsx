@@ -31,6 +31,15 @@ export default function Profile() {
         const profileData = querySnapshot.docs[0].data();
         setProfile(profileData);
 
+        // Autoplay audio if available
+        if (profileData.audioUrl) {
+          setTimeout(() => {
+            if (audioRef.current) {
+              audioRef.current.play().then(() => setIsPlaying(true)).catch(e => console.error("Autoplay blocked:", e));
+            }
+          }, 1000);
+        }
+
         // Fetch user doc for views and badges
         try {
           const userQ = query(collection(db, 'users'), where('username', '==', username.toLowerCase()));
@@ -160,23 +169,29 @@ export default function Profile() {
           </motion.p>
         )}
 
-        {/* Links (Mockup for now, as we didn't build the link editor yet) */}
+        {/* Links */}
         <div className="w-full flex flex-col gap-3">
           {profile.links && profile.links.length > 0 ? (
-            profile.links.map((link: any, i: number) => (
-              <motion.a
-                key={link.id}
-                href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 + i * 0.1 }}
-                className="w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-center text-white text-sm font-medium transition-all hover:scale-[1.02]"
-              >
-                {link.title}
-              </motion.a>
-            ))
+            profile.links.map((link: any, i: number) => {
+              const domain = link.url.replace(/^https?:\/\//, '').split('/')[0];
+              const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=32`;
+              
+              return (
+                <motion.a
+                  key={link.id}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 + i * 0.1 }}
+                  className="w-full py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl flex items-center gap-3 text-white text-sm font-medium transition-all hover:scale-[1.02]"
+                >
+                  <img src={faviconUrl} alt="" className="w-4 h-4 rounded-sm" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                  {link.title}
+                </motion.a>
+              );
+            })
           ) : null}
         </div>
 
