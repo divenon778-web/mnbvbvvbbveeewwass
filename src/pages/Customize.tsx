@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../components/DashboardLayout';
 import { useAuth } from '../AuthContext';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db } from '../firebase';
+import { db, storage } from '../firebase';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import toast from 'react-hot-toast';
 import { X, Upload, Music, Image as ImageIcon, MousePointer2, Cat, Type, Sparkles } from 'lucide-react';
 
@@ -48,28 +49,33 @@ export default function Customize() {
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, field: string, type: 'video' | 'image' | 'audio') => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: string, type: 'video' | 'image' | 'audio') => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Limit size to ~800KB to fit in Firestore document limit (1MB)
-    if (file.size > 800 * 1024) {
-      toast.error('File must be smaller than 800KB. For larger files, please paste a direct URL.');
+    // Limit size to 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('File must be smaller than 5MB.');
       return;
     }
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result as string;
+    try {
+      const storageRef = ref(storage, `uploads/${user?.uid}/${field}_${Date.now()}`);
+      const snapshot = await uploadBytes(storageRef, file);
+      const downloadUrl = await getDownloadURL(snapshot.ref);
+
       setProfile((prev: any) => {
-        const updated = { ...prev, [field]: base64String };
+        const updated = { ...prev, [field]: downloadUrl };
         if (field === 'backgroundUrl') {
           updated.backgroundType = type;
         }
         return updated;
       });
-    };
-    reader.readAsDataURL(file);
+      toast.success('File uploaded successfully');
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      toast.error('Failed to upload file');
+    }
   };
 
   const handleRemove = (field: string) => {
@@ -117,7 +123,7 @@ export default function Customize() {
                 ) : (
                   <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-white/5 transition-colors">
                     <Upload size={20} className="text-zinc-500 mb-2" />
-                    <span className="text-xs text-zinc-500">Upload MP4/Image</span>
+                    <span className="text-xs text-zinc-500">Upload MP4/Image (max 5MB)</span>
                     <input type="file" accept="video/mp4,image/*" className="hidden" onChange={(e) => handleFileUpload(e, 'backgroundUrl', e.target.files?.[0]?.type.includes('video') ? 'video' : 'image')} />
                   </label>
                 )}
@@ -142,7 +148,7 @@ export default function Customize() {
                 ) : (
                   <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-white/5 transition-colors">
                     <Upload size={20} className="text-zinc-500 mb-2" />
-                    <span className="text-xs text-zinc-500">Upload MP3</span>
+                    <span className="text-xs text-zinc-500">Upload MP3 (max 5MB)</span>
                     <input type="file" accept="audio/mpeg,audio/mp3" className="hidden" onChange={(e) => handleFileUpload(e, 'audioUrl', 'audio')} />
                   </label>
                 )}
@@ -164,7 +170,7 @@ export default function Customize() {
                 ) : (
                   <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-white/5 transition-colors">
                     <ImageIcon size={20} className="text-zinc-500 mb-2" />
-                    <span className="text-xs text-zinc-500">Upload Avatar</span>
+                    <span className="text-xs text-zinc-500">Upload Avatar (max 5MB)</span>
                     <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, 'avatarUrl', 'image')} />
                   </label>
                 )}
@@ -186,7 +192,7 @@ export default function Customize() {
                 ) : (
                   <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-white/5 transition-colors">
                     <MousePointer2 size={20} className="text-zinc-500 mb-2" />
-                    <span className="text-xs text-zinc-500">Upload Cursor</span>
+                    <span className="text-xs text-zinc-500">Upload Cursor (max 5MB)</span>
                     <input type="file" accept="image/png" className="hidden" onChange={(e) => handleFileUpload(e, 'cursorUrl', 'image')} />
                   </label>
                 )}
@@ -216,7 +222,7 @@ export default function Customize() {
                 ) : (
                   <label className="flex flex-col items-center justify-center w-full h-full cursor-pointer hover:bg-white/5 transition-colors">
                     <Cat size={20} className="text-zinc-500 mb-2" />
-                    <span className="text-xs text-zinc-500">Upload Pet</span>
+                    <span className="text-xs text-zinc-500">Upload Pet (max 5MB)</span>
                     <input type="file" accept="image/gif,image/png" className="hidden" onChange={(e) => handleFileUpload(e, 'petUrl', 'image')} />
                   </label>
                 )}
