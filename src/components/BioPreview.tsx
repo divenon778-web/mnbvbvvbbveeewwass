@@ -25,31 +25,47 @@ export default function BioPreview({ profile, username }: BioPreviewProps) {
   };
 
   const getBlockStyles = () => {
-    switch (profile.blockStyle) {
-      case 'glass':
-        return {
-          className: "flex items-center justify-between w-full px-4 py-2.5 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl text-[10px] font-medium text-white hover:bg-white/20 transition-all group",
-          style: {}
-        };
-      case 'neobrutal':
-        return {
-          className: "flex items-center justify-between w-full px-4 py-2.5 bg-[#0A0A0A] border-2 rounded-none text-[10px] font-bold text-white transition-all hover:translate-x-1 hover:translate-y-1 group",
-          style: { 
-            borderColor: themeColor, 
-            boxShadow: `4px 4px 0px ${themeColor}`,
-          }
-        };
-      case 'minimal':
-        return {
-          className: "flex items-center justify-between w-full px-4 py-2.5 bg-transparent border-b-2 rounded-none text-[10px] font-medium text-white hover:bg-white/5 transition-all group",
-          style: { borderColor: themeColor }
-        };
-      case 'default':
-      default:
-        return {
-          className: "flex items-center justify-between w-full px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-[10px] font-medium text-white hover:bg-white/10 transition-all group",
-          style: {}
-        };
+    // Links are raw favicons now
+    return {
+      className: "hover:scale-110 transition-transform shrink-0",
+      style: {}
+    };
+  };
+
+  const getMainCardStyle = () => {
+    let blurClass = "bg-black/40 backdrop-blur-[2px]";
+    if (profile.cardBlur === 'opaque') blurClass = "bg-[#111111]";
+    else if (profile.cardBlur === 'light') blurClass = "bg-black/20 backdrop-blur-sm";
+    else if (profile.cardBlur === 'heavy') blurClass = "bg-white/10 backdrop-blur-xl";
+
+    let shadowStyle = "";
+    if (profile.cardShadow === 'soft') shadowStyle = "0 20px 40px rgba(0,0,0,0.5)";
+    else if (profile.cardShadow === 'hard') shadowStyle = `12px 12px 0px ${themeColor}`;
+    else if (profile.cardShadow === 'neon') shadowStyle = `0 0 30px ${themeColor}, 0 0 60px ${themeColor}`;
+
+    let transformClass = "scale-100";
+    if (profile.card3D === '3d') transformClass = "perspective-[1000px] rotate-x-[5deg] rotate-y-[-5deg]";
+
+    return {
+      className: `absolute inset-0 z-[1] ${blurClass} ${transformClass}`,
+      style: { boxShadow: shadowStyle }
+    };
+  };
+
+  const getUsernameStyle = () => {
+    switch (profile.usernameEffect) {
+      case 'glow': return 'text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]';
+      case 'gradient': return 'text-transparent bg-clip-text bg-gradient-to-r from-zinc-400 to-zinc-600';
+      case 'sparkle': return 'text-yellow-300 drop-shadow-[0_0_8px_rgba(253,224,71,0.8)]';
+      case 'glitch': return 'text-white animate-glitch';
+      case 'neon': return 'text-white drop-shadow-[0_0_5px_#fff] drop-shadow-[0_0_10px_#f0f]';
+      case 'typing': return 'text-white border-r-2 border-white pr-1';
+      case 'wave': return 'text-white inline-block';
+      case 'bounce': return 'text-white';
+      case 'float': return 'text-white pt-1';
+      case '3d': return 'text-white drop-shadow-[1px_1px_0px_#555] drop-shadow-[2px_2px_0px_#222]';
+      case 'holo': return 'text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500';
+      default: return 'text-white';
     }
   };
 
@@ -91,8 +107,11 @@ export default function BioPreview({ profile, username }: BioPreviewProps) {
         )}
       </div>
 
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-[1]" />
+      {/* Overlay / Main Card Representation */}
+      <div 
+        className={getMainCardStyle().className}
+        style={getMainCardStyle().style}
+      />
 
       {/* Content */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center p-6 text-center">
@@ -115,11 +134,8 @@ export default function BioPreview({ profile, username }: BioPreviewProps) {
 
         {/* Username */}
         <h1 
-          className={`text-xl font-bold mb-2 tracking-tight ${
-            profile.usernameEffect === 'glow' ? 'drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]' :
-            profile.usernameEffect === 'gradient' ? 'bg-gradient-to-r from-zinc-400 to-zinc-600 bg-clip-text text-transparent' : ''
-          }`}
-          style={{ color: profile.usernameEffect === 'gradient' ? undefined : themeColor }}
+          className={`text-xl font-bold mb-2 tracking-tight ${getUsernameStyle()}`}
+          style={{ color: (profile.usernameEffect === 'gradient' || profile.usernameEffect === 'holo') ? undefined : themeColor }}
         >
           @{username}
         </h1>
@@ -136,6 +152,10 @@ export default function BioPreview({ profile, username }: BioPreviewProps) {
             const domain = url.replace(/^https?:\/\//, '').split('/')[0];
             const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
             
+            let iconStyle = "w-6 h-6 rounded-sm opacity-80 hover:opacity-100 transition-opacity drop-shadow-md ";
+            if (profile.socialStyle === 'monochrome') iconStyle += "grayscale contrast-125";
+            else if (profile.socialStyle === 'minimal') iconStyle += "grayscale opacity-50 hover:grayscale-0 hover:opacity-100";
+
             return (
               <motion.a
                 key={link.id || i}
@@ -145,7 +165,7 @@ export default function BioPreview({ profile, username }: BioPreviewProps) {
                 href="#"
                 className="hover:scale-110 transition-transform shrink-0"
               >
-                <img src={faviconUrl} alt="" className="w-6 h-6 rounded-sm opacity-80 hover:opacity-100 transition-opacity drop-shadow-md" onError={(e) => (e.currentTarget.style.display = 'none')} />
+                <img src={faviconUrl} alt="" className={iconStyle} onError={(e) => (e.currentTarget.style.display = 'none')} />
               </motion.a>
             );
           })}
