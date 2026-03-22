@@ -130,26 +130,27 @@ export default function BioPreview({ profile, username }: BioPreviewProps) {
         </p>
 
         {/* Links */}
-        <div className="w-full space-y-2 mb-6 max-h-[160px] overflow-y-auto pr-1 custom-scrollbar">
+        <div className="w-full flex flex-wrap justify-center gap-3 mb-6 max-h-[160px] overflow-y-auto pr-1 custom-scrollbar">
           {profile.links?.map((link: any, i: number) => {
-            const blockStyleProps = getBlockStyles();
+            const url = link.url && link.url.trim() ? (link.url.startsWith('http') ? link.url : `https://${link.url}`) : 'https://google.com';
+            const domain = url.replace(/^https?:\/\//, '').split('/')[0];
+            const faviconUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
+            
             return (
               <motion.a
                 key={link.id || i}
-                initial={{ x: -20, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: i * 0.1 }}
                 href="#"
-                className={`${blockStyleProps.className} ${profile.blockStyle === 'neobrutal' ? 'neobrutal-hover' : ''}`}
-                style={blockStyleProps.style}
+                className="p-1.5 hover:scale-110 transition-transform bg-white/5 border border-white/10 rounded-lg hover:bg-white/10 shrink-0"
               >
-                <span>{link.title || "Link"}</span>
-                <ExternalLink size={10} className="text-zinc-500 group-hover:text-white transition-colors" />
+                <img src={faviconUrl} alt="" className="w-6 h-6 rounded-sm opacity-80 hover:opacity-100 transition-opacity" onError={(e) => (e.currentTarget.style.display = 'none')} />
               </motion.a>
             );
           })}
           {(!profile.links || profile.links.length === 0) && (
-            <div className="py-4 border border-dashed border-white/10 rounded-xl text-[10px] text-zinc-500">
+            <div className="w-full py-4 border border-dashed border-white/10 rounded-xl text-[10px] text-zinc-500 text-center">
               No links added
             </div>
           )}
