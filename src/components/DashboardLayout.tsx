@@ -59,7 +59,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <Link to="/dashboard/store" className={`flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer transition-colors mt-2 ${location.pathname === '/dashboard/store' ? 'bg-zinc-500/10 text-white border border-zinc-500/20' : 'text-zinc-400 hover:bg-white/5'}`}>
                 <div className="flex items-center gap-3">
                   <ShoppingBag size={16} />
-                  <span className="text-sm font-medium">You're Store</span>
+                  <span className="text-sm font-medium">Your Store</span>
                 </div>
                 <ChevronDown size={16} className="text-zinc-500" />
               </Link>
