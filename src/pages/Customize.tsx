@@ -477,24 +477,7 @@ export default function Customize() {
                           <option value="colored">Colored</option>
                           <option value="monochrome">Monochrome</option>
                           <option value="minimal">Minimal / Transparent</option>
-                          <option value="custom">Custom Color Tint</option>
                         </select>
-                        
-                        {profile?.socialStyle === 'custom' && (
-                          <div className="flex gap-4 items-center mt-2 animate-in fade-in zoom-in duration-300">
-                            <div 
-                              className="w-8 h-8 rounded-full border border-white/20 shrink-0" 
-                              style={{ backgroundColor: profile?.socialColor || '#ffffff' }}
-                            />
-                            <input 
-                              type="text" 
-                              value={profile?.socialColor || '#ffffff'}
-                              onChange={(e) => setProfile({ ...profile, socialColor: e.target.value })}
-                              placeholder="#FFFFFF"
-                              className="w-full bg-white/5 border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-white/20 transition-colors uppercase"
-                            />
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>
