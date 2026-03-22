@@ -36,14 +36,27 @@ import {
 
 // --- Custom Components ---
 
-const BlurWordFade = ({ text, className = "", delay = 0 }: { text: string, className?: string, delay?: number }) => {
+const BlurWordFade = ({ text, className = "", delay = 0, simple = false }: { text: string, className?: string, delay?: number, simple?: boolean }) => {
+  if (simple) {
+    return (
+      <motion.span
+        initial={{ opacity: 0, y: 10 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.8, delay, ease: [0.2, 0.65, 0.3, 0.9] }}
+        className={`inline-block ${className}`}
+      >
+        {text}
+      </motion.span>
+    );
+  }
   const words = text.split(" ");
   return (
     <span className={`inline-block ${className}`}>
       {words.map((word, i) => (
         <motion.span
           key={i}
-          initial={{ opacity: 0, y: 15, filter: "blur(8px)" }}
+          initial={{ opacity: 0, y: 15, filter: "blur(4px)" }}
           whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           viewport={{ once: true, margin: "-50px" }}
           transition={{
@@ -51,7 +64,7 @@ const BlurWordFade = ({ text, className = "", delay = 0 }: { text: string, class
             delay: delay + i * 0.08,
             ease: [0.2, 0.65, 0.3, 0.9],
           }}
-          className="inline-block mr-[0.25em] last:mr-0"
+          className="inline-block mr-[0.25em] last:mr-0 will-change-[opacity,transform,filter]"
         >
           {word}
         </motion.span>
@@ -63,23 +76,19 @@ const BlurWordFade = ({ text, className = "", delay = 0 }: { text: string, class
 const LiquidGlassBackground = () => {
   return (
     <div className="absolute inset-0 z-0 pointer-events-none overflow-hidden bg-black">
-      <div className="absolute inset-0 opacity-80">
+      <div className="absolute inset-0 opacity-60">
         {/* Blob 1 */}
         <motion.div
           animate={{
             rotate: [0, 360],
-            borderRadius: [
-              "40% 60% 70% 30% / 40% 50% 60% 50%",
-              "60% 40% 30% 70% / 50% 60% 40% 50%",
-              "40% 60% 70% 30% / 40% 50% 60% 50%"
-            ],
+            scale: [1, 1.1, 1],
           }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-[10%] -left-[10%] w-[60vw] h-[60vw] min-w-[600px] min-h-[600px]"
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="absolute -top-[10%] -left-[10%] w-[60vw] h-[60vw] min-w-[600px] min-h-[600px] will-change-transform"
           style={{
             background: 'radial-gradient(circle at 30% 30%, rgba(255,255,255,0.02) 0%, transparent 60%)',
-            boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1), inset 0 0 20px rgba(255,255,255,0.5), inset 0 0 40px rgba(255,255,255,0.2), 0 0 40px rgba(0,0,0,1)',
-            filter: 'blur(1px)'
+            boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 0 20px rgba(255,255,255,0.2)',
+            borderRadius: '40% 60% 70% 30% / 40% 50% 60% 50%'
           }}
         />
         
@@ -87,18 +96,14 @@ const LiquidGlassBackground = () => {
         <motion.div
           animate={{
             rotate: [360, 0],
-            borderRadius: [
-              "60% 40% 30% 70% / 50% 60% 40% 50%",
-              "40% 60% 70% 30% / 40% 50% 60% 50%",
-              "60% 40% 30% 70% / 50% 60% 40% 50%"
-            ],
+            scale: [1, 1.05, 1],
           }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="absolute top-[20%] -right-[10%] w-[50vw] h-[70vw] min-w-[500px] min-h-[700px]"
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          className="absolute top-[20%] -right-[10%] w-[50vw] h-[70vw] min-w-[500px] min-h-[700px] will-change-transform"
           style={{
             background: 'radial-gradient(circle at 70% 30%, rgba(255,255,255,0.02) 0%, transparent 60%)',
-            boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.15), inset 0 0 30px rgba(255,255,255,0.6), inset 0 0 50px rgba(255,255,255,0.2), 0 0 40px rgba(0,0,0,1)',
-            filter: 'blur(1px)'
+            boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 0 30px rgba(255,255,255,0.2)',
+            borderRadius: '60% 40% 30% 70% / 50% 60% 40% 50%'
           }}
         />
 
@@ -106,43 +111,19 @@ const LiquidGlassBackground = () => {
         <motion.div
           animate={{
             rotate: [0, 180, 360],
-            borderRadius: [
-              "50% 50% 50% 50% / 50% 50% 50% 50%",
-              "30% 70% 50% 50% / 50% 30% 70% 50%",
-              "50% 50% 50% 50% / 50% 50% 50% 50%"
-            ],
-          }}
-          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
-          className="absolute -bottom-[10%] left-[10%] w-[70vw] h-[50vw] min-w-[700px] min-h-[500px]"
-          style={{
-            background: 'radial-gradient(circle at 50% 70%, rgba(255,255,255,0.02) 0%, transparent 60%)',
-            boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.1), inset 0 0 25px rgba(255,255,255,0.5), inset 0 0 45px rgba(255,255,255,0.2), 0 0 40px rgba(0,0,0,1)',
-            filter: 'blur(1px)'
-          }}
-        />
-        
-        {/* Blob 4 (Center-ish) */}
-        <motion.div
-          animate={{
-            rotate: [180, 360, 180],
-            borderRadius: [
-              "30% 70% 70% 30% / 30% 30% 70% 70%",
-              "70% 30% 30% 70% / 70% 70% 30% 30%",
-              "30% 70% 70% 30% / 30% 30% 70% 70%"
-            ],
           }}
           transition={{ duration: 35, repeat: Infinity, ease: "linear" }}
-          className="absolute top-[30%] left-[30%] w-[40vw] h-[40vw] min-w-[400px] min-h-[400px]"
+          className="absolute -bottom-[10%] left-[10%] w-[70vw] h-[50vw] min-w-[700px] min-h-[500px] will-change-transform"
           style={{
-            background: 'radial-gradient(circle at 50% 50%, rgba(255,255,255,0.03) 0%, transparent 50%)',
-            boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.2), inset 0 0 35px rgba(255,255,255,0.7), inset 0 0 60px rgba(255,255,255,0.2), 0 0 40px rgba(0,0,0,1)',
-            filter: 'blur(1px)'
+            background: 'radial-gradient(circle at 50% 70%, rgba(255,255,255,0.02) 0%, transparent 60%)',
+            boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.05), inset 0 0 25px rgba(255,255,255,0.2)',
+            borderRadius: '50% 50% 50% 50% / 50% 50% 50% 50%'
           }}
         />
       </div>
       
       {/* Overlay gradient to blend bottom into the next section */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/60 to-black pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/40 to-black pointer-events-none" />
     </div>
   );
 };
@@ -257,7 +238,7 @@ export default function Landing() {
         {/* Dashboard Mockup */}
         <motion.div 
           style={{ y: y1 }}
-          className="relative z-20 w-full max-w-5xl mx-auto mt-24 pointer-events-none select-none"
+          className="relative z-20 w-full max-w-5xl mx-auto mt-24 pointer-events-none select-none will-change-transform"
         >
           <div className="rounded-[2rem] bg-[#111111] border border-white/10 p-2 shadow-2xl shadow-white/5">
             <div className="rounded-[1.5rem] bg-[#0A0A0A] border border-white/5 overflow-hidden flex h-[650px]">
@@ -530,20 +511,20 @@ export default function Landing() {
             ].map((feature, i) => (
               <motion.div 
                 key={i}
-                initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-                whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="p-8 rounded-3xl bg-[#0A0A0A] border border-white/5 hover:border-white/10 transition-colors group"
+                className="p-8 rounded-3xl bg-[#0A0A0A] border border-white/5 hover:border-white/10 transition-colors group will-change-transform"
               >
                 <div className="w-12 h-12 rounded-full bg-[#141414] flex items-center justify-center text-white mb-6 group-hover:scale-110 transition-transform">
                   {feature.icon}
                 </div>
                 <h3 className="text-xl font-medium text-white mb-3">
-                  <BlurWordFade text={feature.title} />
+                  {feature.title}
                 </h3>
                 <p className="text-zinc-400 leading-relaxed">
-                  <BlurWordFade text={feature.desc} />
+                  {feature.desc}
                 </p>
               </motion.div>
             ))}
@@ -559,13 +540,13 @@ export default function Landing() {
             <BlurWordFade text="Ready to claim your link?" />
           </h2>
           <p className="text-zinc-400 text-lg mb-10 max-w-2xl mx-auto">
-            <BlurWordFade text="Join thousands of creators and businesses scaling their growth with our platform." delay={0.2} />
+            <BlurWordFade text="Join thousands of creators and businesses scaling their growth with our platform." delay={0.2} simple />
           </p>
           <motion.div 
-            initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex flex-col sm:flex-row items-center justify-center gap-4"
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 will-change-transform"
           >
             <div className="flex items-center bg-white/5 border border-white/10 rounded-full p-1 pl-4">
               <span className="text-zinc-400 text-sm">hushd.com/</span>
