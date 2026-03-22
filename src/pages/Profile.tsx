@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { collection, query, where, getDocs, updateDoc, doc, increment } from 'firebase/firestore';
 import { db } from '../firebase';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Eye, Play, Pause, MousePointer2 } from 'lucide-react';
+import { Eye, Play, Pause } from 'lucide-react';
 
 export default function Profile() {
   const { username } = useParams<{ username: string }>();
@@ -104,16 +104,6 @@ export default function Profile() {
               transition={{ delay: 0.2 }}
               className="text-center"
             >
-              <div className="mb-6 relative">
-                <motion.div
-                  animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="absolute inset-0 bg-white rounded-full blur-2xl"
-                />
-                <div className="relative w-20 h-20 rounded-full border border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-md">
-                  <MousePointer2 size={32} className="text-white group-hover:scale-110 transition-transform" />
-                </div>
-              </div>
               <h2 className="text-white text-xl font-medium tracking-widest uppercase mb-2">
                 Click to enter
               </h2>
