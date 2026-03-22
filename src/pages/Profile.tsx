@@ -47,6 +47,9 @@ export default function Profile() {
           if (!userSnapshot.empty) {
             const uDoc = userSnapshot.docs[0];
             setUserDoc(uDoc.data());
+            await updateDoc(uDoc.ref, {
+              profileViews: increment(1)
+            });
           }
         } catch (err) {
           console.log('Could not fetch user doc (likely permission error, ignoring):', err);
