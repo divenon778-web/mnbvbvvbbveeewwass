@@ -5,7 +5,7 @@ import { useAuth } from '../AuthContext';
 import { doc, getDoc, updateDoc, addDoc, collection, serverTimestamp, query, where, getDocs, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import toast from 'react-hot-toast';
-import { X, Upload, Music, ImageIcon, MousePointer2, Cat, Type, Sparkles, Link, Layout, ShoppingBag, Plus, Eye, Save, Trash2 } from 'lucide-react';
+import { X, Upload, Music, ImageIcon, MousePointer2, Cat, Type, Sparkles, Link, Layout, ShoppingBag, Plus, Eye, Save, Trash2, Coins } from 'lucide-react';
 import BioPreview from '../components/BioPreview';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -17,6 +17,7 @@ export default function Customize() {
   const [activeTab, setActiveTab] = useState<'general' | 'bio' | 'templates'>('general');
   const [isSellModalOpen, setIsSellModalOpen] = useState(false);
   const [sellPrice, setSellPrice] = useState(100);
+  const [sellName, setSellName] = useState('');
   const [savedTemplates, setSavedTemplates] = useState<any[]>([]);
   const [fetchingTemplates, setFetchingTemplates] = useState(false);
 
@@ -113,9 +114,13 @@ export default function Customize() {
 
   const handleSellAsTemplate = async () => {
     if (!user || !userData || !profile) return;
+    if (!sellName.trim()) {
+      toast.error('Please enter a name for your template');
+      return;
+    }
     try {
       const itemData = {
-        name: `${userData.username}'s Custom Template`,
+        name: sellName,
         description: `A unique bio template created by @${userData.username}.`,
         price: sellPrice,
         type: 'template',
@@ -131,6 +136,7 @@ export default function Customize() {
       await addDoc(collection(db, 'store_items'), itemData);
       toast.success('Template listed in store!');
       setIsSellModalOpen(false);
+      setSellName('');
     } catch (error) {
       console.error("Error selling template:", error);
       toast.error('Failed to list template');
@@ -584,9 +590,19 @@ export default function Customize() {
                 
                 <div className="space-y-6">
                   <div className="flex flex-col gap-2">
+                    <label className="text-xs text-zinc-500 uppercase font-bold tracking-tighter">Template Name</label>
+                    <input 
+                      type="text"
+                      value={sellName}
+                      onChange={(e) => setSellName(e.target.value)}
+                      className="w-full bg-white/5 border border-white/5 rounded-xl py-3 px-4 text-sm text-white focus:outline-none focus:border-white/20 transition-colors"
+                      placeholder="e.g. Minimalist Dark Theme"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
                     <label className="text-xs text-zinc-500 uppercase font-bold tracking-tighter">Price (Coins)</label>
                     <div className="relative">
-                      <ShoppingBag size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
+                      <Coins size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-zinc-500" />
                       <input 
                         type="number"
                         value={sellPrice}
