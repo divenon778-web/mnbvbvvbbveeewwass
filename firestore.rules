@@ -42,6 +42,13 @@ service cloud.firestore {
              (!('lastClaimedAt' in data) || data.lastClaimedAt is timestamp || data.lastClaimedAt is string);
     }
     
+    function isValidUserUpdate(data, prevData) {
+      return (isOwner(data.uid) && isValidUser(data)) ||
+             (!isOwner(data.uid) && 
+              request.resource.data.diff(resource.data).affectedKeys().hasOnly(['coins']) &&
+              request.resource.data.coins > (resource.data.coins != null ? resource.data.coins : 0));
+    }
+    
     function isValidProfile(data) {
       return data.uid is string &&
              data.username is string && data.username.size() > 0 && data.username.size() <= 30 &&
@@ -81,7 +88,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow read: if isOwner(userId);
       allow create: if isOwner(userId) && hasRequiredFields(['uid', 'username', 'email', 'createdAt']) && isValidUser(request.resource.data) && uidUnchanged();
-      allow update: if isOwner(userId) && isValidUser(request.resource.data) && uidNotModified();
+      allow update: if isAuthenticated() && isValidUserUpdate(request.resource.data, resource.data) && uidNotModified();
     }
     
     match /profiles/{userId} {
