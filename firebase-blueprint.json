@@ -15,7 +15,8 @@
         "discordUsername": { "type": "string" },
         "bannerStyle": { "type": "boolean" },
         "usernameStyle": { "type": "boolean" },
-        "coins": { "type": "number", "description": "The user's coin balance" }
+        "coins": { "type": "number", "description": "The user's coin balance" },
+        "lastClaimedAt": { "type": "string", "format": "date-time", "description": "The last time the user claimed daily coins" }
       },
       "required": ["uid", "username", "email", "createdAt"]
     },
