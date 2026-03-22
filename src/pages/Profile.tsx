@@ -444,9 +444,7 @@ export default function Profile() {
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: 0.6 + i * 0.1 }}
-                    onMouseEnter={() => setIsHovering(true)}
-                    onMouseLeave={() => setIsHovering(false)}
-                    className="p-2 hover:scale-110 transition-transform bg-white/5 border border-white/10 rounded-xl hover:bg-white/10"
+                    className="hover:scale-110 transition-transform drop-shadow-md"
                   >
                     <img src={faviconUrl} alt="" className="w-8 h-8 rounded-sm" onError={(e) => (e.currentTarget.style.display = 'none')} />
                   </motion.a>
