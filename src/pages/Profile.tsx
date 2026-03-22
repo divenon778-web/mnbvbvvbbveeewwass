@@ -225,59 +225,38 @@ export default function Profile() {
   };
 
   const getBlockStyles = () => {
-    switch (profile.blockStyle) {
-      case 'glass':
-        return {
-          className: "flex items-center justify-between w-full px-6 py-4 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl text-sm font-bold text-white hover:bg-white/20 transition-all hover:scale-[1.02] group",
-          style: {}
-        };
-      case 'neobrutal':
-        return {
-          className: "flex items-center justify-between w-full px-6 py-4 bg-[#0A0A0A] border-[3px] rounded-none text-sm font-bold text-white transition-all hover:translate-x-1 hover:translate-y-1 group neobrutal-hover",
-          style: { 
-            borderColor: themeColor, 
-            boxShadow: `6px 6px 0px ${themeColor}`,
-          }
-        };
-      case 'minimal':
-        return {
-          className: "flex items-center justify-between w-full px-6 py-4 bg-transparent border-b-2 rounded-none text-sm font-bold text-white hover:bg-white/5 transition-all group",
-          style: { borderColor: themeColor }
-        };
-      case 'default':
-      default:
-        return {
-          className: "flex items-center justify-between w-full px-6 py-4 bg-white/5 border border-white/10 rounded-2xl text-sm font-bold text-white hover:bg-white/10 transition-all group",
-          style: {}
-        };
-    }
+    // Links are now always rendered as favicons based on previous step
+    return {
+      className: "hover:scale-110 transition-transform drop-shadow-md",
+      style: {}
+    };
   };
 
   const getMainCardStyle = () => {
-    switch (profile.blockStyle) {
-      case 'neobrutal':
-        return {
-          className: "relative z-10 w-full max-w-[400px] mx-4 bg-[#0A0A0A] border-[4px] rounded-none p-8 flex flex-col items-center",
-          style: { borderColor: themeColor, boxShadow: `12px 12px 0px ${themeColor}` }
-        };
-      case 'glass':
-        return {
-          className: "relative z-10 w-full max-w-[400px] mx-4 bg-white/10 backdrop-blur-2xl border border-white/30 rounded-[3rem] p-8 flex flex-col items-center shadow-2xl",
-          style: {}
-        };
-      case 'minimal':
-        return {
-          className: "relative z-10 w-full max-w-[400px] mx-4 bg-transparent border border-white/10 rounded-3xl p-8 flex flex-col items-center",
-          style: {}
-        };
-      case 'default':
-      default:
-        return {
-          className: "relative z-10 w-full max-w-[400px] mx-4 bg-black/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 flex flex-col items-center shadow-2xl",
-          style: {}
-        };
-    }
+    // 1. Blur Handle
+    let blurClass = "bg-black/40 backdrop-blur-xl";
+    if (profile.cardBlur === 'opaque') blurClass = "bg-[#111111]";
+    else if (profile.cardBlur === 'light') blurClass = "bg-black/20 backdrop-blur-sm";
+    else if (profile.cardBlur === 'heavy') blurClass = "bg-white/10 backdrop-blur-3xl";
+
+    // 2. Shadow Handle
+    let shadowStyle = "";
+    if (profile.cardShadow === 'soft') shadowStyle = "0 20px 40px rgba(0,0,0,0.5)";
+    else if (profile.cardShadow === 'hard') shadowStyle = `12px 12px 0px ${themeColor}`;
+    else if (profile.cardShadow === 'neon') shadowStyle = `0 0 30px ${themeColor}, 0 0 60px ${themeColor}`;
+
+    // 3. 3D Handle
+    let transformClass = "scale-100";
+    if (profile.card3D === '3d') transformClass = "perspective-[1000px] rotate-x-[5deg] rotate-y-[-5deg] hover:rotate-x-0 hover:rotate-y-0 transition-transform duration-700";
+
+    return {
+      className: `relative z-10 w-full max-w-[400px] mx-4 border border-white/10 rounded-[2.5rem] p-8 flex flex-col items-center flex-shrink-0 ${blurClass} ${transformClass}`,
+      style: { boxShadow: shadowStyle }
+    };
   };
+
+    // We replaced getMainCardStyle above, so we are removing the old block map here
+
 
   const getUsernameStyle = () => {
     switch (profile.usernameEffect) {
@@ -285,6 +264,13 @@ export default function Profile() {
       case 'gradient': return 'text-transparent bg-clip-text bg-gradient-to-r from-zinc-400 via-zinc-500 to-zinc-600 animate-gradient-x';
       case 'sparkle': return 'text-yellow-300 drop-shadow-[0_0_8px_rgba(253,224,71,0.8)]';
       case 'glitch': return 'text-white animate-glitch';
+      case 'neon': return 'text-white drop-shadow-[0_0_10px_#fff] drop-shadow-[0_0_20px_#f0f]';
+      case 'typing': return 'text-white border-r-2 border-white pr-1 animate-[ping_1s_infinite] overflow-hidden whitespace-nowrap';
+      case 'wave': return 'text-white inline-block animate-[bounce_2s_infinite]';
+      case 'bounce': return 'text-white animate-bounce';
+      case 'float': return 'text-white animate-[pulse_3s_ease-in-out_infinite] transform -translate-y-1';
+      case '3d': return 'text-white drop-shadow-[2px_2px_0px_#555] drop-shadow-[4px_4px_0px_#222]';
+      case 'holo': return 'text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 drop-shadow-md';
       default: return 'text-white';
     }
   };
@@ -375,6 +361,36 @@ export default function Profile() {
         {/* Background Effects */}
         {profile.backgroundEffect === 'stars' && (
           <div className="absolute inset-0 z-0 opacity-50" style={{ backgroundImage: 'radial-gradient(circle, #fff 1px, transparent 1px)', backgroundSize: '50px 50px' }} />
+        )}
+        {profile.backgroundEffect === 'snow' && (
+          <div className="absolute inset-0 z-0 opacity-40 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] animate-[pulse_10s_linear_infinite]" />
+        )}
+        {profile.backgroundEffect === 'rain' && (
+          <div className="absolute inset-0 z-0 opacity-30" style={{ backgroundImage: 'linear-gradient(transparent, rgba(255,255,255,0.2))', backgroundSize: '2px 100px' }} />
+        )}
+        {profile.backgroundEffect === 'particles' && (
+          <div className="absolute inset-0 z-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white via-transparent to-transparent" />
+        )}
+        {profile.backgroundEffect === 'matrix' && (
+          <div className="absolute inset-0 z-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/black-scales.png')] animate-pulse" />
+        )}
+        {profile.backgroundEffect === 'bubbles' && (
+          <div className="absolute inset-0 z-0 opacity-30 bg-[radial-gradient(circle,_#fff_10%,_transparent_10%)] bg-[size:40px_40px] mix-blend-overlay" />
+        )}
+        {profile.backgroundEffect === 'confetti' && (
+          <div className="absolute inset-0 z-0 opacity-30 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]" />
+        )}
+        {profile.backgroundEffect === 'lightning' && (
+          <div className="absolute inset-0 z-0 opacity-10 bg-white mix-blend-overlay animate-[pulse_5s_infinite]" />
+        )}
+        {profile.backgroundEffect === 'fireflies' && (
+          <div className="absolute inset-0 z-0 opacity-50 bg-[radial-gradient(circle_at_center,_#fff_0%,_transparent_5%)] bg-[size:100px_100px]" />
+        )}
+        {profile.backgroundEffect === 'hyperspace' && (
+          <div className="absolute inset-0 z-0 opacity-40" style={{ background: 'conic-gradient(from 90deg, transparent, rgba(255,255,255,0.2), transparent)' }} />
+        )}
+        {profile.backgroundEffect === 'aurora' && (
+          <div className="absolute inset-0 z-0 opacity-40 bg-gradient-to-tr from-green-500/20 via-blue-500/20 to-purple-500/20 blur-3xl animate-[spin_20s_linear_infinite]" />
         )}
 
         {/* Audio Element */}
