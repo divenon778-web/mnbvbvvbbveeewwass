@@ -6,7 +6,6 @@ import { doc, getDoc, updateDoc, addDoc, collection, serverTimestamp, query, whe
 import { db } from '../firebase';
 import toast from 'react-hot-toast';
 import { X, Upload, Music, ImageIcon, MousePointer2, Cat, Type, Sparkles, Link, Layout, ShoppingBag, Plus, Eye, Save, Trash2, Coins, Palette } from 'lucide-react';
-import BioPreview from '../components/BioPreview';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Customize() {
@@ -14,7 +13,7 @@ export default function Customize() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState<'general' | 'design' | 'bio' | 'templates'>('general');
+  const [activeSection, setActiveSection] = useState<string | null>(null);
   const [isSellModalOpen, setIsSellModalOpen] = useState(false);
   const [sellPrice, setSellPrice] = useState(100);
   const [sellName, setSellName] = useState('');
@@ -166,78 +165,44 @@ export default function Customize() {
 
   return (
     <DashboardLayout>
-      <div className="p-8 flex flex-col text-left max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+      <div className="p-6 md:p-10 flex flex-col text-left max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="flex justify-between items-center mb-10">
           <div>
-            <h2 className="text-2xl font-bold text-white mb-1">Customize</h2>
-            <p className="text-zinc-500 text-sm">Personalize your bio profile and create templates.</p>
+            <h2 className="text-2xl font-bold text-white">Customize your <span className="text-emerald-400">Profile</span></h2>
           </div>
           <div className="flex gap-3">
             <button 
               onClick={() => setIsSellModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 rounded-xl text-sm font-medium hover:bg-zinc-500/20 transition-colors"
+              className="flex items-center gap-2 px-4 py-2.5 bg-zinc-500/10 text-zinc-400 border border-zinc-500/20 rounded-xl text-xs font-medium hover:bg-zinc-500/20 transition-colors"
             >
-              <ShoppingBag size={16} />
+              <ShoppingBag size={14} />
               Sell as Template
             </button>
             <button 
               onClick={handleSave}
               disabled={saving}
-              className="flex items-center gap-2 px-6 py-2 bg-white text-black rounded-xl text-sm font-bold hover:bg-zinc-200 transition-colors disabled:opacity-50"
+              className="flex items-center gap-2 px-6 py-2.5 bg-white text-black rounded-xl text-xs font-bold hover:bg-zinc-200 transition-colors disabled:opacity-50"
             >
-              <Save size={16} />
+              <Save size={14} />
               {saving ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-6 border-b border-white/5 mb-8">
-          <button 
-            onClick={() => setActiveTab('general')}
-            className={`pb-4 text-sm font-medium transition-colors relative ${activeTab === 'general' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
-          >
-            General
-            {activeTab === 'general' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
-          </button>
-          <button 
-            onClick={() => setActiveTab('design')}
-            className={`pb-4 text-sm font-medium transition-colors relative ${activeTab === 'design' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
-          >
-            Design
-            {activeTab === 'design' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
-          </button>
-          <button 
-            onClick={() => setActiveTab('bio')}
-            className={`pb-4 text-sm font-medium transition-colors relative ${activeTab === 'bio' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
-          >
-            Bio & Effects
-            {activeTab === 'bio' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
-          </button>
-          <button 
-            onClick={() => setActiveTab('templates')}
-            className={`pb-4 text-sm font-medium transition-colors relative ${activeTab === 'templates' ? 'text-white' : 'text-zinc-500 hover:text-zinc-300'}`}
-          >
-            Templates
-            {activeTab === 'templates' && <motion.div layoutId="tab-underline" className="absolute bottom-0 left-0 right-0 h-0.5 bg-white" />}
-          </button>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          {/* Left Side: Controls */}
-          <div className="lg:col-span-8 space-y-8">
-            {activeTab === 'general' && (
-              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="bg-[#111111] border border-white/5 rounded-3xl p-8">
+        <div className="space-y-10">
+            {/* ==================== SECTION: ASSETS ==================== */}
+            <div>
+              <div className="bg-[#111111] border border-white/5 rounded-2xl p-6 md:p-8">
                   <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                    <ImageIcon size={20} className="text-zinc-400" />
-                    Media Assets
+                    <ImageIcon size={18} className="text-zinc-500" />
+                    Assets
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                     {/* Background */}
                     <div className="flex flex-col gap-3">
-                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Background URL</label>
-                      <div className="relative h-40 bg-[#0A0A0A] border border-white/10 rounded-2xl overflow-hidden group flex items-center justify-center">
+                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Background</label>
+                      <div className="relative aspect-[4/3] bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden group flex items-center justify-center">
                         {profile?.backgroundUrl ? (
                           <>
                             {profile.backgroundType === 'video' ? (
@@ -265,8 +230,8 @@ export default function Customize() {
 
                     {/* Avatar */}
                     <div className="flex flex-col gap-3">
-                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Avatar URL</label>
-                      <div className="relative h-40 bg-[#0A0A0A] border border-white/10 rounded-2xl overflow-hidden group flex items-center justify-center">
+                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Profile Avatar</label>
+                      <div className="relative aspect-[4/3] bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden group flex items-center justify-center">
                         {profile?.avatarUrl ? (
                           <>
                             <img src={profile.avatarUrl} className="w-full h-full object-cover opacity-70" alt="avatar" />
@@ -290,8 +255,8 @@ export default function Customize() {
 
                     {/* Audio */}
                     <div className="flex flex-col gap-3">
-                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Audio URL (MP3/Direct)</label>
-                      <div className="relative h-40 bg-[#0A0A0A] border border-white/10 rounded-2xl overflow-hidden group flex items-center justify-center">
+                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Audio</label>
+                      <div className="relative aspect-[4/3] bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden group flex items-center justify-center">
                         {profile?.audioUrl ? (
                           <>
                             <div className="flex flex-col items-center justify-center w-full h-full bg-zinc-500/5">
@@ -318,8 +283,8 @@ export default function Customize() {
 
                     {/* Cursor */}
                     <div className="flex flex-col gap-3">
-                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Custom Cursor URL</label>
-                      <div className="relative h-40 bg-[#0A0A0A] border border-white/10 rounded-2xl overflow-hidden group flex items-center justify-center">
+                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Custom Cursor</label>
+                      <div className="relative aspect-[4/3] bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden group flex items-center justify-center">
                         {profile?.cursorUrl ? (
                           <>
                             <img src={profile.cursorUrl} className="w-12 h-12 object-contain" alt="cursor" />
@@ -343,48 +308,125 @@ export default function Customize() {
                   </div>
                 </div>
 
-                <div className="bg-[#111111] border border-white/5 rounded-3xl p-8">
-                  <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                    <Cat size={20} className="text-zinc-400" />
+                <div className="bg-[#111111] border border-white/5 rounded-2xl p-6 md:p-8 mt-4">
+                  <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2">
+                    <Cat size={18} className="text-zinc-500" />
                     Custom Pet
                   </h3>
-                  <div className="relative h-40 bg-[#0A0A0A] border border-white/10 rounded-2xl overflow-hidden group flex items-center justify-center max-w-sm">
+                  <div className="relative aspect-[4/3] max-w-[180px] bg-[#0A0A0A] border border-white/10 rounded-xl overflow-hidden group flex items-center justify-center">
                     {profile?.petUrl ? (
                       <>
-                        <img src={profile.petUrl} className="w-24 h-24 object-contain" alt="pet" />
-                        <button onClick={() => handleRemove('petUrl')} className="absolute top-3 right-3 w-8 h-8 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-red-500 transition-colors z-10">
-                          <X size={14} />
+                        <img src={profile.petUrl} className="w-20 h-20 object-contain" alt="pet" />
+                        <button onClick={() => handleRemove('petUrl')} className="absolute top-2 right-2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-red-500 transition-colors z-10">
+                          <X size={12} />
                         </button>
                       </>
                     ) : (
                       <div className="flex flex-col items-center justify-center w-full h-full p-4">
-                        <Cat size={24} className="text-zinc-500 mb-3" />
+                        <Cat size={20} className="text-zinc-500 mb-2" />
                         <input 
                           type="text" 
-                          placeholder="Paste Pet Image URL (GIF/PNG)..." 
-                          className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl px-4 py-2 text-xs text-white focus:outline-none focus:border-zinc-500/50 transition-colors"
+                          placeholder="Paste Pet Image URL..." 
+                          className="w-full bg-[#0A0A0A] border border-white/10 rounded-lg px-3 py-1.5 text-[10px] text-white focus:outline-none focus:border-zinc-500/50 transition-colors"
                           onChange={(e) => handleUrlChange('petUrl', e.target.value)}
                         />
                       </div>
                     )}
                   </div>
                 </div>
-              </div>
-            )}
+            </div>
 
-            {activeTab === 'design' && (
-              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="bg-[#111111] border border-white/5 rounded-3xl p-8">
-                  <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                    <Palette size={20} className="text-zinc-400" />
-                    Profile Aesthetics
+            {/* ==================== SECTION: BIO CUSTOMIZATION ==================== */}
+            <div>
+              <div className="bg-[#111111] border border-white/5 rounded-2xl p-6 md:p-8">
+                  <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
+                    <Type size={18} className="text-zinc-500" />
+                    Bio <span className="text-emerald-400">Customization</span>
+                  </h3>
+                  <div className="space-y-6">
+                    {/* Description */}
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Description</label>
+                      <div className="relative">
+                        <div className="absolute left-3 top-3 text-zinc-600"><Type size={14} /></div>
+                        <textarea 
+                          value={profile?.bio || ''}
+                          onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
+                          placeholder="your bio here..."
+                          className="w-full h-20 bg-[#0A0A0A] border border-white/10 rounded-xl pl-9 pr-4 pt-3 text-sm text-white focus:outline-none focus:border-zinc-500/50 transition-colors resize-none"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Effects row */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Background Effects</label>
+                        <div className="relative">
+                          <Sparkles size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600" />
+                          <select 
+                            value={profile?.backgroundEffect || 'none'}
+                            onChange={(e) => setProfile({ ...profile, backgroundEffect: e.target.value })}
+                            className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl pl-9 pr-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-500/50 transition-colors appearance-none"
+                          >
+                            <option value="none">Select an effect...</option>
+                            <option value="snow">Snowflakes</option>
+                            <option value="rain">Rain</option>
+                            <option value="stars">Stars</option>
+                            <option value="particles">Particles</option>
+                            <option value="matrix">Matrix Code</option>
+                            <option value="bubbles">Bubbles</option>
+                            <option value="confetti">Confetti</option>
+                            <option value="lightning">Lightning</option>
+                            <option value="fireflies">Fireflies</option>
+                            <option value="hyperspace">Hyperspace Speed</option>
+                            <option value="aurora">Aurora Borealis</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Username Effects</label>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-600 text-sm">@</span>
+                          <select 
+                            value={profile?.usernameEffect || 'none'}
+                            onChange={(e) => setProfile({ ...profile, usernameEffect: e.target.value })}
+                            className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl pl-9 pr-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-500/50 transition-colors appearance-none"
+                          >
+                            <option value="none">None</option>
+                            <option value="glow">Glow</option>
+                            <option value="sparkle">Sparkle</option>
+                            <option value="glitch">Glitch</option>
+                            <option value="gradient">Gradient</option>
+                            <option value="neon">Neon Sign</option>
+                            <option value="typing">Typewriter</option>
+                            <option value="wave">Wave</option>
+                            <option value="bounce">Bounce</option>
+                            <option value="float">Float</option>
+                            <option value="3d">3D Shadow</option>
+                            <option value="holo">Holographic</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+              </div>
+            </div>
+
+            {/* ==================== SECTION: DESIGN ==================== */}
+            <div>
+              <div className="bg-[#111111] border border-white/5 rounded-2xl p-6 md:p-8">
+                  <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
+                    <Palette size={18} className="text-zinc-500" />
+                    Design <span className="text-emerald-400">Settings</span>
                   </h3>
                   
                   <div className="space-y-8">
                     {/* Theme Color */}
-                    <div className="flex flex-col gap-3">
-                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Theme Color (Hex)</label>
-                      <div className="flex gap-4 items-center">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Theme Color</label>
+                      <div className="flex gap-3 items-center">
                         <div 
                           className="w-10 h-10 rounded-full border border-white/20 shrink-0" 
                           style={{ backgroundColor: profile?.themeColor || '#ffffff' }}
@@ -410,8 +452,8 @@ export default function Customize() {
                     </div>
 
                     {/* Font Family */}
-                    <div className="flex flex-col gap-3">
-                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Font Style</label>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Font Style</label>
                       <select 
                         value={profile?.font || 'inter'}
                         onChange={(e) => setProfile({ ...profile, font: e.target.value })}
@@ -427,9 +469,9 @@ export default function Customize() {
                     </div>
 
                     {/* Card Customizations */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="flex flex-col gap-3">
-                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Card Shape / 3D</label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Card Shape / 3D</label>
                         <select 
                           value={profile?.card3D || 'normal'}
                           onChange={(e) => setProfile({ ...profile, card3D: e.target.value })}
@@ -441,8 +483,8 @@ export default function Customize() {
                         </select>
                       </div>
 
-                      <div className="flex flex-col gap-3">
-                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Card Drop Shadow</label>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Card Drop Shadow</label>
                         <select 
                           value={profile?.cardShadow || 'none'}
                           onChange={(e) => setProfile({ ...profile, cardShadow: e.target.value })}
@@ -455,8 +497,8 @@ export default function Customize() {
                         </select>
                       </div>
 
-                      <div className="flex flex-col gap-3">
-                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Card Backdrop Blur</label>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Card Backdrop Blur</label>
                         <select 
                           value={profile?.cardBlur || 'opaque'}
                           onChange={(e) => setProfile({ ...profile, cardBlur: e.target.value })}
@@ -468,8 +510,8 @@ export default function Customize() {
                         </select>
                       </div>
 
-                      <div className="flex flex-col gap-3">
-                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Social Icon Style</label>
+                      <div className="flex flex-col gap-2">
+                        <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Social Icon Style</label>
                         <select 
                           value={profile?.socialStyle || 'colored'}
                           onChange={(e) => setProfile({ ...profile, socialStyle: e.target.value })}
@@ -484,79 +526,17 @@ export default function Customize() {
                   </div>
                 </div>
               </div>
-            )}
+            </div>
 
-            {activeTab === 'bio' && (
-              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="bg-[#111111] border border-white/5 rounded-3xl p-8">
-                  <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                    <Type size={20} className="text-zinc-400" />
-                    Bio Content
+            {/* ==================== SECTION: SOCIAL LINKS ==================== */}
+            <div>
+              <div className="bg-[#111111] border border-white/5 rounded-2xl p-6 md:p-8">
+                  <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
+                    <Link size={18} className="text-zinc-500" />
+                    Social <span className="text-emerald-400">Links</span>
                   </h3>
-                  <div className="space-y-6">
-                    <div className="flex flex-col gap-3">
-                      <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Description</label>
-                      <textarea 
-                        value={profile?.bio || ''}
-                        onChange={(e) => setProfile({ ...profile, bio: e.target.value })}
-                        placeholder="Tell the world about yourself..."
-                        className="w-full h-32 bg-[#0A0A0A] border border-white/10 rounded-2xl p-4 text-sm text-white focus:outline-none focus:border-zinc-500/50 transition-colors resize-none"
-                      />
-                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div className="flex flex-col gap-3">
-                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Username Effect</label>
-                        <select 
-                          value={profile?.usernameEffect || 'none'}
-                          onChange={(e) => setProfile({ ...profile, usernameEffect: e.target.value })}
-                          className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-500/50 transition-colors appearance-none"
-                        >
-                          <option value="none">None</option>
-                          <option value="glow">Glow</option>
-                          <option value="sparkle">Sparkle</option>
-                          <option value="glitch">Glitch</option>
-                          <option value="gradient">Gradient</option>
-                          <option value="neon">Neon Sign</option>
-                          <option value="typing">Typewriter</option>
-                          <option value="wave">Wave</option>
-                          <option value="bounce">Bounce</option>
-                          <option value="float">Float</option>
-                          <option value="3d">3D Shadow</option>
-                          <option value="holo">Holographic</option>
-                        </select>
-                      </div>
-                      <div className="flex flex-col gap-3">
-                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-tighter">Background Effect</label>
-                        <select 
-                          value={profile?.backgroundEffect || 'none'}
-                          onChange={(e) => setProfile({ ...profile, backgroundEffect: e.target.value })}
-                          className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-500/50 transition-colors appearance-none"
-                        >
-                          <option value="none">None</option>
-                          <option value="snow">Snowflakes</option>
-                          <option value="rain">Rain</option>
-                          <option value="stars">Stars</option>
-                          <option value="particles">Particles</option>
-                          <option value="matrix">Matrix Code</option>
-                          <option value="bubbles">Bubbles</option>
-                          <option value="confetti">Confetti</option>
-                          <option value="lightning">Lightning</option>
-                          <option value="fireflies">Fireflies</option>
-                          <option value="hyperspace">Hyperspace Speed</option>
-                          <option value="aurora">Aurora Borealis</option>
-                        </select>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-[#111111] border border-white/5 rounded-3xl p-8">
-                  <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                    <Link size={20} className="text-zinc-400" />
-                    Social Links
-                  </h3>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {profile?.links?.map((link: any, index: number) => (
                       <motion.div 
                         key={link.id || index}
@@ -608,16 +588,15 @@ export default function Customize() {
                       Add New Link
                     </button>
                   </div>
-                </div>
               </div>
-            )}
+            </div>
 
-            {activeTab === 'templates' && (
-              <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                <div className="bg-[#111111] border border-white/5 rounded-3xl p-8">
-                  <h3 className="text-lg font-bold text-white mb-6 flex items-center gap-2">
-                    <Layout size={20} className="text-zinc-400" />
-                    Template Management
+            {/* ==================== SECTION: TEMPLATES ==================== */}
+            <div>
+              <div className="bg-[#111111] border border-white/5 rounded-2xl p-6 md:p-8">
+                  <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
+                    <Layout size={18} className="text-zinc-500" />
+                    Template <span className="text-emerald-400">Management</span>
                   </h3>
                   <p className="text-zinc-500 text-sm mb-8">
                     Save your current configuration as a template to use later or sell it in the marketplace.
@@ -690,22 +669,7 @@ export default function Customize() {
                   </div>
                 </div>
               </div>
-            )}
-          </div>
-
-          {/* Right Side: Preview */}
-          <div className="lg:col-span-4">
-            <div className="sticky top-8">
-              <div className="flex items-center justify-between mb-4 px-2">
-                <h3 className="text-xs font-bold text-zinc-500 uppercase tracking-tighter flex items-center gap-2">
-                  <Eye size={14} />
-                  Live Preview
-                </h3>
-                <span className="text-[10px] text-zinc-600">Real-time updates</span>
-              </div>
-              <BioPreview profile={profile} username={userData?.username || 'username'} />
             </div>
-          </div>
         </div>
 
         {/* Sell Template Modal */}
