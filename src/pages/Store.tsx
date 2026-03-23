@@ -7,7 +7,7 @@ import { db } from '../firebase';
 import { collection, query, where, getDocs, addDoc, doc, updateDoc, increment, serverTimestamp, setDoc, getDoc } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import TemplateCard from '../components/TemplateCard.tsx';
+import MarketplacePreview from '../components/MarketplacePreview';
 
 interface StoreItem {
   id: string;
@@ -459,7 +459,7 @@ export default function Store() {
                 
                 {item.type === 'template' && item.templateData && (
                   <div className="relative w-full aspect-[16/10] mb-6 overflow-hidden rounded-xl bg-[#0A0A0A] border border-white/5 group-hover:border-white/10 transition-colors group/preview">
-                    <TemplateCard profile={item.templateData} username={item.sellerUsername} />
+                    <MarketplacePreview profile={item.templateData} username={item.sellerUsername} />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/80 via-transparent to-transparent opacity-0 group-hover/preview:opacity-100 transition-opacity flex items-end justify-center pb-4">
                       <div className="flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/10">
                         <Layout size={12} className="text-white" />
