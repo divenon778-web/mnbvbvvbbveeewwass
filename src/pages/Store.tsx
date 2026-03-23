@@ -7,6 +7,7 @@ import { db } from '../firebase';
 import { collection, query, where, getDocs, addDoc, doc, updateDoc, increment, serverTimestamp, setDoc, getDoc } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
+import BioPreview from '../components/BioPreview';
 
 interface StoreItem {
   id: string;
@@ -422,7 +423,7 @@ export default function Store() {
                 key={item.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-[#111111] border border-white/5 rounded-2xl p-6 flex flex-col h-full hover:border-white/10 transition-colors"
+                className="bg-[#111111] border border-white/5 rounded-2xl p-6 flex flex-col h-full hover:border-white/10 transition-colors group"
               >
                 <div className="flex justify-between items-start mb-4">
                   <div className={`p-2 rounded-lg ${item.type === 'template' ? 'bg-zinc-500/10 text-zinc-500' : 'bg-blue-500/10 text-blue-500'}`}>
@@ -455,6 +456,17 @@ export default function Store() {
                     </div>
                   </div>
                 </div>
+                
+                {item.type === 'template' && item.templateData && (
+                  <div className="relative w-full aspect-[16/10] mb-6 overflow-hidden rounded-xl bg-black/20 border border-white/5 group-hover:border-white/10 transition-colors flex items-center justify-center group/preview">
+                    <div className="origin-center transform scale-[0.3] pointer-events-none shrink-0" style={{ width: '320px', height: '569px' }}>
+                      <BioPreview profile={item.templateData} username={item.sellerUsername} />
+                    </div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/80 to-transparent opacity-0 group-hover/preview:opacity-100 transition-opacity flex items-end justify-center pb-4">
+                      <span className="text-[10px] font-bold text-white uppercase tracking-widest">Template Preview</span>
+                    </div>
+                  </div>
+                )}
 
                 <h3 className="text-lg font-bold text-white mb-1">{item.name}</h3>
                 <p className="text-xs text-zinc-500 mb-4 line-clamp-2">{item.description}</p>
