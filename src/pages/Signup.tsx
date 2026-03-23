@@ -39,8 +39,8 @@ export default function Signup() {
     e.preventDefault();
     if (!authUser) return;
     
-    if (username.length < 3 || username.length > 20) {
-      toast.error('Username must be between 3 and 20 characters');
+    if (username.length < 1 || username.length > 20) {
+      toast.error('Username must be between 1 and 20 characters');
       return;
     }
     
@@ -130,7 +130,7 @@ export default function Signup() {
             </div>
             <button 
               type="submit" 
-              disabled={loading || username.length < 3}
+              disabled={loading || username.length < 1}
               className="w-full bg-white text-black font-medium rounded-lg py-2.5 mt-2 hover:bg-zinc-200 transition-colors disabled:opacity-50"
             >
               {loading ? 'Saving...' : 'Complete Setup'}
