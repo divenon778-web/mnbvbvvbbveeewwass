@@ -7,7 +7,7 @@ import { db } from '../firebase';
 import { collection, query, where, getDocs, addDoc, doc, updateDoc, increment, serverTimestamp, setDoc, getDoc } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import BioPreview from '../components/BioPreview';
+import TemplateCard from '../components/TemplateCard';
 
 interface StoreItem {
   id: string;
@@ -458,12 +458,13 @@ export default function Store() {
                 </div>
                 
                 {item.type === 'template' && item.templateData && (
-                  <div className="relative w-full aspect-[16/10] mb-6 overflow-hidden rounded-xl bg-black/20 border border-white/5 group-hover:border-white/10 transition-colors flex items-center justify-center group/preview">
-                    <div className="origin-center transform scale-[0.3] pointer-events-none shrink-0" style={{ width: '320px', height: '569px' }}>
-                      <BioPreview profile={item.templateData} username={item.sellerUsername} />
-                    </div>
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/80 to-transparent opacity-0 group-hover/preview:opacity-100 transition-opacity flex items-end justify-center pb-4">
-                      <span className="text-[10px] font-bold text-white uppercase tracking-widest">Template Preview</span>
+                  <div className="relative w-full aspect-[16/10] mb-6 overflow-hidden rounded-xl bg-[#0A0A0A] border border-white/5 group-hover:border-white/10 transition-colors group/preview">
+                    <TemplateCard profile={item.templateData} username={item.sellerUsername} />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/80 via-transparent to-transparent opacity-0 group-hover/preview:opacity-100 transition-opacity flex items-end justify-center pb-4">
+                      <div className="flex items-center gap-2 px-3 py-1.5 bg-white/10 backdrop-blur-md rounded-full border border-white/10">
+                        <Layout size={12} className="text-white" />
+                        <span className="text-[10px] font-bold text-white uppercase tracking-widest">Template Preview</span>
+                      </div>
                     </div>
                   </div>
                 )}
