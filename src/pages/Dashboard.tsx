@@ -126,8 +126,8 @@ export default function Dashboard() {
 
     setIsUpdating(true);
     try {
-      // 1. Check for uniqueness
-      const q = query(collection(db, 'users'), where('username', '==', formattedUsername));
+      // 1. Check for uniqueness (using profiles collection which is publicly readable)
+      const q = query(collection(db, 'profiles'), where('username', '==', formattedUsername));
       const querySnapshot = await getDocs(q);
       
       if (!querySnapshot.empty) {
