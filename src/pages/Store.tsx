@@ -7,7 +7,7 @@ import { db } from '../firebase';
 import { collection, query, where, getDocs, addDoc, doc, updateDoc, increment, serverTimestamp, setDoc, getDoc } from 'firebase/firestore';
 import { toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
-import TemplateCard from '../components/TemplateCard';
+import TemplateCard from '../components/TemplateCard.tsx';
 
 interface StoreItem {
   id: string;
