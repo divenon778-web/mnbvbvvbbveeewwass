@@ -668,7 +668,6 @@ export default function Customize() {
                 </div>
               </div>
             </div>
-        </div>
 
         {/* Sell Template Modal */}
         <AnimatePresence>
