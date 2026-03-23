@@ -169,7 +169,7 @@ export default function Customize() {
         {/* Header */}
         <div className="flex justify-between items-center mb-10">
           <div>
-            <h2 className="text-2xl font-bold text-white">Customize your <span className="text-emerald-400">Profile</span></h2>
+            <h2 className="text-2xl font-bold text-white">Customize your <span className="text-zinc-400">Profile</span></h2>
           </div>
           <div className="flex gap-3">
             <button 
@@ -341,7 +341,7 @@ export default function Customize() {
               <div className="bg-[#111111] border border-white/5 rounded-2xl p-6 md:p-8">
                   <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
                     <Type size={18} className="text-zinc-500" />
-                    Bio <span className="text-emerald-400">Customization</span>
+                    Bio <span className="text-zinc-400">Customization</span>
                   </h3>
                   <div className="space-y-6">
                     {/* Description */}
@@ -419,7 +419,7 @@ export default function Customize() {
               <div className="bg-[#111111] border border-white/5 rounded-2xl p-6 md:p-8">
                   <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
                     <Palette size={18} className="text-zinc-500" />
-                    Design <span className="text-emerald-400">Settings</span>
+                    Design <span className="text-zinc-400">Settings</span>
                   </h3>
                   
                   <div className="space-y-8">
@@ -526,14 +526,12 @@ export default function Customize() {
                   </div>
                 </div>
               </div>
-            </div>
-
             {/* ==================== SECTION: SOCIAL LINKS ==================== */}
             <div>
               <div className="bg-[#111111] border border-white/5 rounded-2xl p-6 md:p-8">
                   <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
                     <Link size={18} className="text-zinc-500" />
-                    Social <span className="text-emerald-400">Links</span>
+                    Social <span className="text-zinc-400">Links</span>
                   </h3>
 
                   <div className="space-y-3">
@@ -596,7 +594,7 @@ export default function Customize() {
               <div className="bg-[#111111] border border-white/5 rounded-2xl p-6 md:p-8">
                   <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
                     <Layout size={18} className="text-zinc-500" />
-                    Template <span className="text-emerald-400">Management</span>
+                    Template <span className="text-zinc-400">Management</span>
                   </h3>
                   <p className="text-zinc-500 text-sm mb-8">
                     Save your current configuration as a template to use later or sell it in the marketplace.
