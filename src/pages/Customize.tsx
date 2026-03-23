@@ -436,7 +436,8 @@ export default function Customize() {
                           className="w-full bg-[#0A0A0A] border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-zinc-500/50 transition-colors appearance-none"
                         >
                           <option value="normal">Normal (Flat)</option>
-                          <option value="3d">3D Perspective</option>
+                          <option value="3d">Static 3D Perspective</option>
+                          <option value="interactive">Interactive 3D Hover</option>
                         </select>
                       </div>
 
