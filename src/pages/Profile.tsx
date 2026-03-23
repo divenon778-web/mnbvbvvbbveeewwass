@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom';
 import { collection, query, where, getDocs, updateDoc, doc, increment, addDoc, serverTimestamp, setDoc, getDoc } from 'firebase/firestore';
 import { db } from '../firebase';
 import { useAuth } from '../AuthContext';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { Eye, Play, Pause, ShoppingBag, Coins, Download, X, Layout, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -39,6 +39,31 @@ export default function Profile() {
   const [isVolumeVisible, setIsVolumeVisible] = useState(false);
   const [isStoreOpen, setIsStoreOpen] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  // 3D Parallax Tracking Logic
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+
+  const rawRotateX = useTransform(mouseY, [-0.5, 0.5], [15, -15]);
+  const rawRotateY = useTransform(mouseX, [-0.5, 0.5], [-15, 15]);
+
+  const springConfig = { damping: 20, stiffness: 150 };
+  const springRotateX = useSpring(rawRotateX, springConfig);
+  const springRotateY = useSpring(rawRotateY, springConfig);
+
+  const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (profile?.card3D !== 'interactive') return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clientX = e.clientX - rect.left;
+    const clientY = e.clientY - rect.top;
+    mouseX.set(clientX / rect.width - 0.5);
+    mouseY.set(clientY / rect.height - 0.5);
+  };
+
+  const handleCardMouseLeave = () => {
+    mouseX.set(0);
+    mouseY.set(0);
+  };
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -403,8 +428,15 @@ export default function Profile() {
           initial={{ opacity: 0, scale: 0.9, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           transition={{ duration: 0.6, ease: [0.2, 0.65, 0.3, 0.9] }}
-          className={getMainCardStyle().className}
-          style={getMainCardStyle().style}
+          className={getMainCardStyle().className + (profile?.card3D === 'interactive' ? " perspective-[1200px]" : "")}
+          style={{
+            ...getMainCardStyle().style,
+            rotateX: profile?.card3D === 'interactive' ? springRotateX : 0,
+            rotateY: profile?.card3D === 'interactive' ? springRotateY : 0,
+            transformStyle: profile?.card3D === 'interactive' ? 'preserve-3d' : 'flat'
+          }}
+          onMouseMove={handleCardMouseMove}
+          onMouseLeave={handleCardMouseLeave}
         >
           {/* Avatar */}
           <motion.div 
@@ -412,6 +444,7 @@ export default function Profile() {
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: 'spring', stiffness: 200, damping: 20 }}
             className="w-24 h-24 rounded-full border-2 border-white/20 overflow-hidden mb-4 shadow-[0_0_30px_rgba(255,255,255,0.1)]"
+            style={{ transform: profile?.card3D === 'interactive' ? 'translateZ(50px)' : 'none' }}
           >
             <img 
               src={profile.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.username}`} 
@@ -426,7 +459,10 @@ export default function Profile() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
             className={`text-2xl font-bold mb-2 ${getUsernameStyle()}`}
-            style={{ color: profile.usernameEffect === 'gradient' ? undefined : themeColor }}
+            style={{ 
+              color: profile.usernameEffect === 'gradient' ? undefined : themeColor,
+              transform: profile?.card3D === 'interactive' ? 'translateZ(40px)' : 'none'
+            }}
           >
             {profile.displayName || profile.username}
           </motion.h1>
@@ -438,13 +474,17 @@ export default function Profile() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.5 }}
               className="text-center text-zinc-300 text-sm mb-8"
+              style={{ transform: profile?.card3D === 'interactive' ? 'translateZ(30px)' : 'none' }}
             >
               {profile.bio}
             </motion.p>
           )}
 
           {/* Links */}
-          <div className="w-full flex flex-wrap justify-center gap-4 mb-8">
+          <motion.div 
+            className="w-full flex flex-wrap justify-center gap-4 mb-8"
+            style={{ transform: profile?.card3D === 'interactive' ? 'translateZ(20px)' : 'none' }}
+          >
             {profile.links && profile.links.length > 0 ? (
               profile.links.map((link: any, i: number) => {
                 const url = link.url.startsWith('http') ? link.url : `https://${link.url}`;
@@ -470,7 +510,7 @@ export default function Profile() {
                 );
               })
             ) : null}
-          </div>
+          </motion.div>
 
           {/* Store Button */}
           {profile.showStoreOnBio && storeItems.length > 0 && (
