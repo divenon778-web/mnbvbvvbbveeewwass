@@ -22,6 +22,7 @@ interface StoreItem {
 }
 
 import { handleFirestoreError, OperationType } from '../firebase';
+import MarketplacePreview from '../components/MarketplacePreview';
 
 export default function Profile() {
   const { username } = useParams<{ username: string }>();
@@ -635,7 +636,7 @@ export default function Profile() {
 
               <div className="flex-1 overflow-y-auto p-6 grid grid-cols-1 md:grid-cols-2 gap-4 custom-scrollbar">
                 {storeItems.map((item) => (
-                  <div key={item.id} className="bg-white/5 border border-white/5 rounded-2xl p-4 flex flex-col hover:border-white/10 transition-colors">
+                  <div key={item.id} className="bg-white/5 border border-white/5 rounded-2xl p-4 flex flex-col hover:border-white/10 transition-colors group">
                     <div className="flex justify-between items-start mb-3">
                       <div className={`p-2 rounded-lg ${item.type === 'template' ? 'bg-zinc-500/10 text-zinc-500' : 'bg-blue-500/10 text-blue-500'}`}>
                         {item.type === 'template' ? <Layout size={16} /> : <FileText size={16} />}
@@ -645,6 +646,16 @@ export default function Profile() {
                         <span className="text-[10px] font-bold text-white">{item.price}</span>
                       </div>
                     </div>
+
+                    {item.type === 'template' && item.templateData && (
+                      <div className="relative w-full aspect-[16/10] mb-3 overflow-hidden rounded-xl bg-black/20 border border-white/5 group/preview">
+                        <MarketplacePreview profile={item.templateData} username={item.sellerUsername} />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#111111]/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-2">
+                          <span className="text-[8px] font-bold text-white uppercase tracking-widest bg-white/10 backdrop-blur-md px-2 py-1 rounded-full border border-white/10">Preview</span>
+                        </div>
+                      </div>
+                    )}
+
                     <h3 className="text-sm font-bold text-white mb-1">{item.name}</h3>
                     <p className="text-[10px] text-zinc-500 mb-4 line-clamp-2">{item.description}</p>
                     <button 
